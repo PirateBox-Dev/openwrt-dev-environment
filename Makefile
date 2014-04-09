@@ -22,6 +22,8 @@ PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox
 
 $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
+	#Switch it to our build-env.
+	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1|" $(IMAGE_BUILD)/Makefile
 
 $(OPENWRT_DIR):
 # http://wiki.openwrt.org/doc/howto/buildroot.exigence
