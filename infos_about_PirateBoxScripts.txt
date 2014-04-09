@@ -1,0 +1,103 @@
+Create a working testing environment
+------------------------------------
+
+git clone xxxx/PirateBoxScripts_Webserver
+
+-- stable  => Current release code
+-- development => Codebase in development
+-- release-x.y => stablzing release code
+
+stable -----*-------*-------*--->
+release-new --*--------*---/
+developtment -|-*-*-*-/-*-*-*>
+
+Creating images or script pacakges
+----------------------------------
+
+OpenWRT files are images containing a filesystem. To fill those filesystem you need to have sudo right for running mount, cp and  unmount commands.
+
+make shortimage  - for generation of a OpenWRT piratebox-image file
+	- creates version stamp file "version" which you find  in /opt/piratebox afterwards
+	- unfolds a previously created filesystem-file
+	- creats a build folder where the conf content is copied into
+	- reconfigures conf/* files for OpenWRT usage
+	- creates a special bin/ folder for patching scripts
+	- mounts the file-filesystem to a created mount-point
+	- copies over all needed files
+	- overwrites the copied data with patched conf/ and bin/
+	- unmounts filesystem
+	- creates a .gz file
+	- creates a tar.gz file
+
+make / make package - generates a tar.gz containing scripts for normal linux systems
+
+make all - like make package and a make shortimage together
+
+make clean  - general tidy up
+
+
+The used filesystem has 50MB unpacked afterwards and is formatted with ext4.
+the naming of the OpenWRT files is:
+
+	piratebox_X.Y_img.gz
+
+X = Major release, with almost no backwards compatibility
+Y = Feature release with backward compatibility. 
+
+Because that name is coded in the OpenWRT package, it can't be changed for every fix release. So you can't see which fix-level the source without haveing the version file.
+
+
+Folder Structure
+---------------
+
+/opt/piratebox/bin    - Binarys and Scripts
+/opt/piratebox/conf   - Piratebox related configs (seperated from the normal system-configs!)
+/opt/piratebox/lib    - (in future release) contains shellscript function libs
+/opt/piratebox/python_lib   - Contains common Python libraries for Shoutbox usage
+/opt/piratebox/share  - Mountpoint (with the first start of piratebox, the correct permissions will be set)
+/opt/piratebox/share/Shared   -  Unsorted upload folder
+/opt/piratebox/share/board      -  imageboard location
+/opt/piratebox/share/tmp 	- tmp folder for lighttpd
+/opt/piratebox/init.d - the init-script (later more?)
+/opt/piratebox/www    - Webfolder with cgi-scripts and static html pages
+/opt/piratebox/tmp    - Folder with the error-log
+
+PirateBox Start-Up
+------------------
+init.d/piratebox & init.d/piratebox_alt are doing the same thing, but using different command-sets for starting the commands and doing verbose output. This is a historical thing, because the development started on a debian system and later on  OpenWRT I found out, that I need a different command set.
+That will change in future again.
+
+In general the bootup is doing the following steps:
+
+- Setting start environment
+- loading piratebox.conf file
+- if no initialization was done before (flag-file is /opt/piratebox/conf/init_done)
+  - run the following scripts:
+    - '' $PIRATEBOX/bin/hooks/hook_pre_init.sh  "$CONF" ''	- User-Customization point
+    - '' $PIRATEBOX/bin/install_piratebox.sh "$CONF" part2 '' - Set permissions and folder links
+    - '' $PIRATEBOX/bin/hooks/hook_post_init.sh  "$CONF" '' - User-Customization point
+    - set init_done file
+- '' $PIRATEBOX/bin/generate_config_files.sh  "$CONF" ''  - Generates the following files
+  - conf/dnsmasq_generated.conf - DHCP configuration and DNS redirect
+  - conf/radvd_generated.conf   - IPv6 advertisment, if activated
+  - conf/lighttpd/env - environment variables for Shoutbox
+  - conf/hosts_generated - known, predefined hostnames
+- '' $PIRATEBOX/bin/hooks/hook_piratebox_start.sh  "$CONF" '' - Uer Customization point
+- cleanup /opt/piratebox/tmp folder
+- '' $PIRATEBOX/bin/distribute_files.sh $SHARE_FOLDER/Shared '' distribute files for the custom directory-listing design
+- if enabled, create wlan device-point via IW ( $DO_IW , $INTERFACE and $PHY_IF are relevant )
+- ''piratebox_setup_wlan.sh  $CONF probe'' - Probe if USB device is available  ($PROBE_INTERFACE)
+- If  ''$USE_APN'' is set, start hostapd service, which creates the hotspot
+- If ''$DO_IFCONFIG'' is set, run ''piratebox_setup_wlan.sh  $CONF start''. That sets up the IPv4 and IPv6 addresses on the $INTERFACE
+- If ''$USE_DNSMASQ'' set, starting dnsmasq service, which provides IPs (DHCP) and does name resolution (DNS)
+- IF ''$DROOPY_ENABLED'' is set, 
+  - run ''delete_empty.sh  $UPLOADFOLDER'' to cleanup 0 Byte files from upload folder
+  - remove files called tmp* from $UPLOADFOLDER
+  - start python script called "droopy" for having a robust upload functionality
+- Do shoutbox-initialization with ''$PIRATEBOX/bin/shoutbox_stuff.sh $WWW_FOLDER $CONF''
+- Start lighttpd service
+- If enabled via ''$GLOBAL_CHAT'', start global chat service
+- ''$PIRATEBOX/bin/hooks/hook_piratebox_start_done.sh  "$CONF"'' - User customization point
+
+
+
