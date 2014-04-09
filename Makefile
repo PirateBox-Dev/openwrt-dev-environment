@@ -8,6 +8,8 @@ PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
 
 WWW=$(HERE)/local_www
 
+IMAGE_BUILD=openwrt-image-build
+IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
 
 ### Vars for local_feed batch_generation
 LOCAL_FEED_FOLDER=$(HERE)/local_feed
@@ -16,6 +18,10 @@ PACKAGE_USB_CONFIG_SCRIPTS_GIT=https://github.com/LibraryBox-Dev/package-openwrt
 PACKAGE_LIBRARYBOX_GIT=https://github.com/LibraryBox-Dev/package-openwrt-librarybox.git
 PACKAGE_EXTENDROOT_GIT=https://github.com/PirateBox-Dev/package-openwrt-extendRoot.git
 PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox.git
+
+
+$(IMAGE_BUILD):
+	git clone $(IMAGE_BUILD_GIT)
 
 $(OPENWRT_DIR):
 # http://wiki.openwrt.org/doc/howto/buildroot.exigence
@@ -48,7 +54,7 @@ apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 	echo "src-link local $(LOCAL_FEED_FOLDER) "  >> $(OPENWRT_FEED_FILE)	
 
 
-openwrt_env: $(OPENWRT_DIR)
+openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
 ###  Pulls an overall refresh
 update_all_feeds:
@@ -63,7 +69,12 @@ install_piratebox_feed:
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p piratebox -a
 
 ## Run a repository, that will only contain files having "all" as naming
-##  pattern
+##  pattern.
+## I use that local-www repository for the openwrt-image-build.
+##   That toolset generates out of the stock OpenWRT ImageBuilder the custom files, we use.
+##   Read more about ImageBuild: http://wiki.openwrt.org/doc/howto/obtain.firmware.generate
+##   For getting our packages into the custom image, we inject our local repository into the build process and get our package-dependencies from there.
+##      --- see more informations in openwrt-image-build folder.
 
 $(WWW):
 	mkdir -p $(WWW)
