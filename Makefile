@@ -6,6 +6,9 @@ OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
 
+WWW=$(HERE)/local_www
+
+
 ### Vars for local_feed batch_generation
 LOCAL_FEED_FOLDER=$(HERE)/local_feed
 PACKAGE_BOXINSTALLER_GIT=https://github.com/LibraryBox-Dev/LibraryBox-Installer.git
@@ -61,10 +64,15 @@ install_piratebox_feed:
 
 ## Run a repository, that will only contain files having "all" as naming
 ##  pattern
-run_repository_all:
+
+$(WWW):
+	mkdir -p $(WWW)
+	ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all 
+
+run_repository_all: $(WWW)
 	- rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
-	sudo python3 -m http.server 80
+	cd $(WWW) && sudo python3 -m http.server 80
 
 ##### Menuconfig parameters
 #### Libraries --> libffmpeg-mini (M)
