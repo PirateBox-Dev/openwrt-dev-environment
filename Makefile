@@ -20,6 +20,21 @@ PACKAGE_EXTENDROOT_GIT=https://github.com/PirateBox-Dev/package-openwrt-extendRo
 PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox.git
 
 
+##### PirateBox-image files, which are used in the package
+PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
+
+PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
+
+$(PIRATEBOXSCRIPTS):
+	git clone $(PIRATEBOXSCRIPTS_GIT) $@
+
+create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
+	- cd $(PIRATEBOXSCRIPTS) && make cleanall
+	cd $(PIRATEBOXSCRIPTS) && make shortimage	
+	### Copy image to image-builder if needed
+	[-d $(IMAGE_BUILD) ] && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz  $(IMAGE_BUILD)
+
+
 $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
 	#Switch it to our build-env.
@@ -114,7 +129,27 @@ run_repository_all: $(WWW)
 # Later you can build single packages in the openwrt folder with
 #   make package/feeds/<feed>/<package>/{compile,install}
 
+######
+## Remember that you might have to switch the the branches
+##   on git-packages like openwrt-packages in feed folder
+##   or PirateBoxScripts_Webserver to get the correct versions together (before release 1.0 it is a bit inconstent due to a restructuration)
+##
+#####
 
-
+#####
+##  To go on with building the final image, we can use the current latest relase or build
+##  our own piratebox_ws_img file, which will reflect /opt/piratebox on OpenwRT systems
+##
+##  (you need this only, if you do changes or run a newer version then in stable source )
+##
+##  1. # make PirateBoxScripts_Webserver/
+##  2.  (switch branches or make changes if needed) 
+##  3. # make create_piratebox_script_image   # That creates and copies a new piratebox_ws_1.0_img.tar.gz
+##  
+##  Next step can be the creation of a new install_zip source. 
+##
+##  
+## 1. open a 2nd console and point to this development folder. Run
+##    run_repository_all
 
 
