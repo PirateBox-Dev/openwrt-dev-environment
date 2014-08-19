@@ -63,6 +63,8 @@ if [ "$1" = "package" ] ; then
 	echo "You can transfer via scp as well, like "
 	echo "  #  scp $pb_pb_srcImg root@192.168.1.1:/mnt/usb/install "
 	echo " and run"
+	echo " "
+	echo " in ANY CASE, you have to run the following commands on the Box to activate the changes"
 	echo "  #  /etc/init.d/piratebox stop"
 	echo "  #  /etc/init.d/pirateobx updatePB"
 	echo " and start afertwards"
