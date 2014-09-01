@@ -32,7 +32,7 @@ create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 	- cd $(PIRATEBOXSCRIPTS) && make cleanall
 	cd $(PIRATEBOXSCRIPTS) && make shortimage	
 	### Copy image to image-builder if needed
-	[-d $(IMAGE_BUILD) ] && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz  $(IMAGE_BUILD)
+	test-d $(IMAGE_BUILD)  && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz  $(IMAGE_BUILD)
 
 
 $(IMAGE_BUILD):
@@ -62,6 +62,19 @@ $(LOCAL_FEED_FOLDER):
 	cd  $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_EXTENDROOT_GIT) extendRoot
 	cd  $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOX_GIT)  piratebox
 
+##test_local_folder:= $(wildcard $(LOCAL_FEED_FOLDER)/* )
+
+define git_checkout_development
+	cd $(1) && git checkout development
+endef
+
+switch_local_feed_to_dev:  
+	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/box-installer)
+	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/librarybox)
+	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/piratebox)
+	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/extendRoot)
+# no dev branch yet	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
+	
 
 ## Running this command will pull the "local_feed" folder generation
 ##    if you want to create your own, you should do this before running
@@ -152,4 +165,9 @@ run_repository_all: $(WWW)
 ## 1. open a 2nd console and point to this development folder. Run
 ##    run_repository_all
 
+
+auto_build_stable:  openwrt_env apply_PirateBox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
+	cd $(OPENWRT_DIR) && make  -j 16
+
+auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
 
