@@ -33,22 +33,28 @@ Which does the following steps for you:
     
         make openwrt_env
 
-2. Apply the PirateBox OpenWRT feed
-       make apply_piratebox_feed
+2. Apply the PirateBox OpenWRT feed 
+
+        make apply_piratebox_feed
 
 3. Install the PirateBox OpenWRT feed
-       make install_piratebox_feed
+
+        make install_piratebox_feed
 
 4. Update all feeds
-       make update_all_feeds
+
+        make update_all_feeds
 
 5. Create the piratebox script image
-       make create_piratebox_script_image
+
+        make create_piratebox_script_image
 
 6. Build OpenWRT:
-       cd openwrt && make -j 16
 
-The __-j__ flag needs to be adjusted to your system, a good rule of thumb is to use twice the value of the amount of cores you have for disposition. Also the last step takes some time, depending on your building machine it can take up to several hours.
+        cd openwrt && make -j 16
+
+The __-j__ flag needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have for disposition + 1.     
+Also the last step takes some time, depending on your building machine it can take up to several hours.
 
 ### Local feed
 For convencience, there is a make target helping you to get started:
@@ -58,10 +64,13 @@ For convencience, there is a make target helping you to get started:
 Which does the following steps for you:
 
 1. Clone and configure OpenWRT and clone the image build script    
+
         make openwrt_env
 
-2. Apply the local OpenWRT feed, cloning all needed repositories
-       make apply_local_feed
+2. Apply the local OpenWRT feed, cloning all needed repositories     
 
-3. Switch the local feeds to their development branch
-       make switch_local_feed_to_dev
+        make apply_local_feed
+
+3. Switch the local feeds to their development branch     
+
+        make switch_local_feed_to_dev
