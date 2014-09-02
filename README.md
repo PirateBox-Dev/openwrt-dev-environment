@@ -29,8 +29,9 @@ For convenience, there is a make target executing all following targets, but for
     
 Which does the following steps for you:
     
-1. Clone and configure OpenWRT and clone the image build script    
-       make openwrt_env
+1. Clone and configure OpenWRT and clone the image build script
+    
+        make openwrt_env
 
 2. Apply the PirateBox OpenWRT feed
        make apply_piratebox_feed
@@ -57,7 +58,7 @@ For convencience, there is a make target helping you to get started:
 Which does the following steps for you:
 
 1. Clone and configure OpenWRT and clone the image build script    
-       make openwrt_env
+        make openwrt_env
 
 2. Apply the local OpenWRT feed, cloning all needed repositories
        make apply_local_feed
