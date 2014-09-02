@@ -23,6 +23,10 @@ There are two methods to build the image:
 Use the __local feed__ variant if you want to use __other__ branches __than__ the __master__ branch.
 
 ### PirateBox feed
+Make sure you have the loop kernel module loaded:
+
+    modprobe loop
+
 For convenience, there is a make target executing all following targets, but for completeness each step is lined out in detail below
 
     make auto_build_stable
@@ -32,18 +36,22 @@ Which does the following steps for you:
 1. Clone and configure OpenWRT and clone the image build script
     
         make openwrt_env
+Detailed information about the OpenWRT build system may be found in the OpenWRT Wiki:
+
+  * [build system](http://wiki.openwrt.org/doc/howto/buildroot.exigence)
+  * [obtaining the source](http://wiki.openwrt.org/doc/howto/buildroot.exigence#downloading.sources)
 
 2. Apply the PirateBox OpenWRT feed 
 
-        make apply_piratebox_feed
+        make apply_PirateBox_feed
 
-3. Install the PirateBox OpenWRT feed
-
-        make install_piratebox_feed
-
-4. Update all feeds
+3. Update all feeds
 
         make update_all_feeds
+
+4. Install the PirateBox OpenWRT feed
+
+        make install_piratebox_feed
 
 5. Create the piratebox script image
 
@@ -51,10 +59,10 @@ Which does the following steps for you:
 
 6. Build OpenWRT:
 
-        cd openwrt && make -j 16
+        cd openwrt && make -j 4
 
-The __-j__ flag needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have for disposition + 1.     
-Also the last step takes some time, depending on your building machine it can take up to several hours.
+The __-j__ flag needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
+Building the OpenWRT image may take a long time, depending on your machine, up to a couple of hours.
 
 ### Local feed
 For convencience, there is a make target helping you to get started:
