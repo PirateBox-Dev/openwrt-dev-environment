@@ -64,6 +64,34 @@ Detailed information about the OpenWRT build system may be found in the OpenWRT 
 The __-j__ flag needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
 Building the OpenWRT image may take a long time, depending on your machine, up to a couple of hours.
 
+#### Local repository
+After building OpenWRT you can start your local repository:
+
+    make run_repository_all
+
+Now surf to __localhost__ and check that the repository is up and running.
+
+#### Build the image
+Preparation:
+
+    cd openwrt
+    make menuconfig
+
+set the options:
+
+    Libraries --> libffmpeg-mini (M)  
+    Utilities --> box-installer(M)
+                  extendRoot(M) --> (*)
+    Network   --> PirateBox --> (all)
+
+To build the PirateBox image run:
+
+    cd openwrt-image-build
+    git stash
+    git checkout AA-with-installer
+    git stash pop # Fix the merge conflict for the future, check out the right branch at the beginning
+    make all INSTALL_TARGET=piratebox
+
 ### Local feed
 For convencience, there is a make target helping you to get started:
  
