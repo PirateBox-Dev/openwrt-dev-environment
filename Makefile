@@ -41,8 +41,6 @@ $(IMAGE_BUILD):
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1|" $(IMAGE_BUILD)/Makefile
 
 $(OPENWRT_DIR):
-# http://wiki.openwrt.org/doc/howto/buildroot.exigence
-# http://wiki.openwrt.org/doc/howto/buildroot.exigence#downloading.sources
 	git clone $(OPENWRT_GIT)
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
