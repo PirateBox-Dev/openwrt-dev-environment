@@ -8,10 +8,10 @@ PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
 
 WWW=$(HERE)/local_www
 
-IMAGE_BUILD=openwrt-image-build
 IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
+IMAGE_BUILD=openwrt-image-build
 
-### Vars for local_feed batch_generation
+# Variables for local_feed batch_generation
 LOCAL_FEED_FOLDER=$(HERE)/local_feed
 PACKAGE_BOXINSTALLER_GIT=https://github.com/LibraryBox-Dev/LibraryBox-Installer.git
 PACKAGE_USB_CONFIG_SCRIPTS_GIT=https://github.com/LibraryBox-Dev/package-openwrt-usb-config-scripts.git
@@ -19,10 +19,8 @@ PACKAGE_LIBRARYBOX_GIT=https://github.com/LibraryBox-Dev/package-openwrt-library
 PACKAGE_EXTENDROOT_GIT=https://github.com/PirateBox-Dev/package-openwrt-extendRoot.git
 PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox.git
 
-
-##### PirateBox-image files, which are used in the package
+# PirateBox-image files, which are used in the package
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
-
 PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
 
 $(PIRATEBOXSCRIPTS):
@@ -30,10 +28,9 @@ $(PIRATEBOXSCRIPTS):
 
 create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && make cleanall
-	cd $(PIRATEBOXSCRIPTS) && make shortimage	
+	cd $(PIRATEBOXSCRIPTS) && make shortimage
 	### Copy image to image-builder if needed
-	test -d $(IMAGE_BUILD)  && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz  $(IMAGE_BUILD)
-
+	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
 
 $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
@@ -47,18 +44,18 @@ $(OPENWRT_DIR):
 	cp $(HERE)/example-config $(OPENWRT_DIR)/.config
 
 $(OPENWRT_FEED_FILE):
-	cp  $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
+	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
 	
 apply_PirateBox_feed: $(OPENWRT_FEED_FILE)
 	echo "src-git piratebox $(PIRATEBOX_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
 
 $(LOCAL_FEED_FOLDER):
 	mkdir -p $(LOCAL_FEED_FOLDER)
-	cd  $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_BOXINSTALLER_GIT) box-installer
-	cd  $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_USB_CONFIG_SCRIPTS_GIT) usb-config-scripts
-	cd  $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_LIBRARYBOX_GIT) librarybox
-	cd  $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_EXTENDROOT_GIT) extendRoot
-	cd  $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOX_GIT)  piratebox
+	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_BOXINSTALLER_GIT) box-installer
+	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_USB_CONFIG_SCRIPTS_GIT) usb-config-scripts
+	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_LIBRARYBOX_GIT) librarybox
+	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_EXTENDROOT_GIT) extendRoot
+	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOX_GIT) piratebox
 
 ##test_local_folder:= $(wildcard $(LOCAL_FEED_FOLDER)/* )
 
@@ -66,21 +63,19 @@ define git_checkout_development
 	cd $(1) && git checkout development
 endef
 
-switch_local_feed_to_dev:  
+switch_local_feed_to_dev:
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/box-installer)
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/librarybox)
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/piratebox)
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/extendRoot)
 # no dev branch yet	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
-	
 
 ## Running this command will pull the "local_feed" folder generation
 ##    if you want to create your own, you should do this before running
 ##    make apply_local_feed
 ##
 apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
-	echo "src-link local $(LOCAL_FEED_FOLDER) "  >> $(OPENWRT_FEED_FILE)	
-
+	echo "src-link local $(LOCAL_FEED_FOLDER)" >> $(OPENWRT_FEED_FILE)
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
@@ -106,10 +101,10 @@ install_piratebox_feed:
 
 $(WWW):
 	mkdir -p $(WWW)
-	ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all 
+	ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all
 
 run_repository_all: $(WWW)
-	- rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
+	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
 	cd $(WWW) && sudo python3 -m http.server 80
 
@@ -136,8 +131,7 @@ run_repository_all: $(WWW)
 ##
 #####
 
-auto_build_stable:  openwrt_env apply_PirateBox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
-	cd $(OPENWRT_DIR) && make  -j 16
+auto_build_stable: openwrt_env apply_PirateBox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
+	cd $(OPENWRT_DIR) && make -j 16
 
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
-
