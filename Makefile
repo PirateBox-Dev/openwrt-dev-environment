@@ -23,6 +23,23 @@ PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
 PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
 
+.PHONY: info
+
+# The default make target.
+# Display some information about the available targets.
+info:
+	@ echo "Ooooop, please read the README"
+	@ echo "=============================="
+	@ echo "Available build targets:"
+	@ echo "* openwrt_env"
+	@ echo "* apply_piratebox_feed"
+	@ echo "* apply_local_feed"
+	@ echo "* update_all_feeds"
+	@ echo "* install_piratebox_feed"
+	@ echo "* install_local_feed"
+	@ echo "* create_piratebox_script_image"
+	@ echo "* run_repository_all"
+
 # Clone the PirateBoxScripts repository
 $(PIRATEBOXSCRIPTS):
 	git clone $(PIRATEBOXSCRIPTS_GIT) $@
