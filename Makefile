@@ -52,7 +52,7 @@ $(OPENWRT_FEED_FILE):
 	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
 
 # Aapply the PirateBox feed
-apply_PirateBox_feed: $(OPENWRT_FEED_FILE)
+apply_piratebox_feed: $(OPENWRT_FEED_FILE)
 	echo "src-git piratebox $(PIRATEBOX_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
 
 $(LOCAL_FEED_FOLDER):
@@ -137,7 +137,6 @@ run_repository_all: $(WWW)
 ##
 #####
 
-auto_build_stable: openwrt_env apply_PirateBox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
+auto_build_stable: openwrt_env apply_piratebox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
 	cd $(OPENWRT_DIR) && make -j 16
-
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
