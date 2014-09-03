@@ -11,9 +11,16 @@ It should help with the common task to be done on developing around. See Makefil
 * SHOULD NOT be used for only creating customized images, use [openwrt-image-build](http://wiki.openwrt.org/doc/howto/obtain.firmware.generate) instead.
 
 ## Todo's
-* Improve this README
-* Add complete walk-through to set up the dev environment
-* Improve comments in the Makefile
+* Improve this README - WIP
+* Add complete walk-through to set up the dev environment - WIP
+* Improve comments in the Makefile, better yet - get rid of them and move all needed information to this README.
+
+## Prerequisites
+* Make sure you have the loop kernel module loaded:
+
+        modprobe loop
+
+* Make sure you have at least __6BG__ free disk space
 
 ## Setting up the development enviroment
 There are two methods to build the image:
@@ -22,16 +29,9 @@ There are two methods to build the image:
 
 Use the __local feed__ variant if you want to use __other__ branches __than__ the __master__ branch.
 
+
 ### PirateBox feed
-Make sure you have the loop kernel module loaded:
-
-    modprobe loop
-
-For convenience, there is a make target executing all following targets, but for completeness each step is lined out in detail below
-
-    make auto_build_stable
-    
-Which does the following steps for you:
+To build your PirateBox image execute the following steps in order:
     
 1. Clone and configure OpenWRT and clone the image build script
     
@@ -57,33 +57,35 @@ Detailed information about the OpenWRT build system may be found in the OpenWRT 
 
         make create_piratebox_script_image
 
-6. Build OpenWRT:
+6. Prepare the Kernel
+Copy the Kernel config file:
 
-        cd openwrt && make -j 4
+       cp example_config openwrt/.config
+Some configuration has to be adjusted:
 
+        cd openwrt
+        make menuconfig
+set the options:
+
+        Libraries --> libffmpeg-mini (M)  
+        Utilities --> box-installer(M)
+                      extendRoot(M) --> (*)
+        Network   --> PirateBox --> (all)
+
+7. Build OpenWRT:
+
+        make -j 4
 The __-j__ flag needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
 Building the OpenWRT image may take a long time, depending on your machine, up to a couple of hours.
 
-#### Local repository
-After building OpenWRT you can start your local repository:
+8. Start local repository
+After building OpenWRT you can start your local repository (you best start this in a seperate terminal since it wil lblock the current terminal):
 
-    make run_repository_all
+        cd ..
+        make run_repository_all
+Now surf to __localhost__ and verify that the repository is up and running.
 
-Now surf to __localhost__ and check that the repository is up and running.
-
-#### Build the image
-Preparation:
-
-    cd openwrt
-    make menuconfig
-
-set the options:
-
-    Libraries --> libffmpeg-mini (M)  
-    Utilities --> box-installer(M)
-                  extendRoot(M) --> (*)
-    Network   --> PirateBox --> (all)
-
+9. Build the PirateBox image
 To build the PirateBox image run:
 
     cd openwrt-image-build
@@ -92,21 +94,14 @@ To build the PirateBox image run:
     git stash pop # Fix the merge conflict for the future, check out the right branch at the beginning
     make all INSTALL_TARGET=piratebox
 
-### Local feed
-For convencience, there is a make target helping you to get started:
- 
-    make auto_build_snapshot
-    
-Which does the following steps for you:
+### Troubleshooting
+#### Builing OpenWRT fails with errors
+Run __make__ single threaded and with the __S=v__ flag to get detailed output:
 
-1. Clone and configure OpenWRT and clone the image build script    
+    make -j1 S=v
 
-        make openwrt_env
+## Working Setups
+The build process has been tested on the following systems:
+* Ubuntu 14.04
 
-2. Apply the local OpenWRT feed, cloning all needed repositories     
-
-        make apply_local_feed
-
-3. Switch the local feeds to their development branch     
-
-        make switch_local_feed_to_dev
+If you run the build process successfully on another setup, please leave a note in the Issue section, or submit a Pull Request with added information.
