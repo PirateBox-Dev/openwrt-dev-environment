@@ -136,23 +136,6 @@ run_repository_all: $(WWW)
 ##
 #####
 
-#####
-##  To go on with building the final image, we can use the current latest relase or build
-##  our own piratebox_ws_img file, which will reflect /opt/piratebox on OpenwRT systems
-##
-##  (you need this only, if you do changes or run a newer version then in stable source )
-##
-##  1. # make PirateBoxScripts_Webserver/
-##  2.  (switch branches or make changes if needed) 
-##  3. # make create_piratebox_script_image   # That creates and copies a new piratebox_ws_1.0_img.tar.gz
-##  
-##  Next step can be the creation of a new install_zip source. 
-##
-##  
-## 1. open a 2nd console and point to this development folder. Run
-##    run_repository_all
-
-
 auto_build_stable:  openwrt_env apply_PirateBox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
 	cd $(OPENWRT_DIR) && make  -j 16
 
