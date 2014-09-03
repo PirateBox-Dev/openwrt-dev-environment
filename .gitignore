@@ -1,3 +1,5 @@
 local_feed/
 openwrt/
-openwrt-image-build
+openwrt-image-build/
+local_www/
+PirateBoxScripts_Webserver/
