@@ -113,10 +113,6 @@ run_repository_all: $(WWW)
 	cd $(OPENWRT_DIR) && make package/index
 	cd $(WWW) && sudo python3 -m http.server 80
 
-###   Side note, following package need to be added manually to openwrt/bin/ar71xx/packages/
-###    * piratebox-mesh
-###    * pbxopkg 
-
 ## Note: Toolkit-build need to run single threaded, because sometimes 
 ##       build-dependencies fail. Package-Build run fine multi-threaded.
 
