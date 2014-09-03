@@ -51,7 +51,7 @@ $(OPENWRT_DIR):
 $(OPENWRT_FEED_FILE):
 	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
 
-# Aapply the PirateBox feed
+# Apply the PirateBox feed
 apply_piratebox_feed: $(OPENWRT_FEED_FILE)
 	echo "src-git piratebox $(PIRATEBOX_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
 
@@ -105,10 +105,12 @@ install_piratebox_feed:
 ##   For getting our packages into the custom image, we inject our local repository into the build process and get our package-dependencies from there.
 ##      --- see more informations in openwrt-image-build folder.
 
+# Prepare a folder for the repository
 $(WWW):
 	mkdir -p $(WWW)
 	ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all
 
+# Rebuild the package index and run the local repository
 run_repository_all: $(WWW)
 	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
@@ -129,4 +131,5 @@ run_repository_all: $(WWW)
 
 auto_build_stable: openwrt_env apply_piratebox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
 	cd $(OPENWRT_DIR) && make -j 16
+
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
