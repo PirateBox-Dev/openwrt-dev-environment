@@ -26,15 +26,17 @@ PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
 $(PIRATEBOXSCRIPTS):
 	git clone $(PIRATEBOXSCRIPTS_GIT) $@
 
+# Create piratebox script image and copy it to the build directory if available
 create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && make cleanall
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
-	### Copy image to image-builder if needed
 	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
 
+# Clone the imagebuild repository, checkout the AA-with-installer branch and
+# adapt the Makefile to use this local repository.
 $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
-	#Switch it to our build-env.
+	cd $(IMAGE_BUILD) && git checkout AA-with-installer
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1|" $(IMAGE_BUILD)/Makefile
 
 $(OPENWRT_DIR):
