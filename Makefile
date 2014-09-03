@@ -117,16 +117,6 @@ run_repository_all: $(WWW)
 ## Note: Toolkit-build need to run single threaded, because sometimes 
 ##       build-dependencies fail. Package-Build run fine multi-threaded.
 
-# 1. # make openwrt_env
-#  Decide  . local feed (for package development)  or piratebox feed 
-#    - you can use both, wich is a more advanced setup
-#    * will use piratebox feed as example
-# 2. # make apply_PirateBox_feed
-# 3. # update_all_feeds
-# 4. Do one complete build, that toolchain is generated correctly
-#    cd openwrt
-#    make 
-
 # Later you can build single packages in the openwrt folder with
 #   make package/feeds/<feed>/<package>/{compile,install}
 
