@@ -23,6 +23,7 @@ PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
 PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
 
+# Clone the PirateBoxScripts repository
 $(PIRATEBOXSCRIPTS):
 	git clone $(PIRATEBOXSCRIPTS_GIT) $@
 
@@ -39,15 +40,18 @@ $(IMAGE_BUILD):
 	cd $(IMAGE_BUILD) && git checkout AA-with-installer
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1|" $(IMAGE_BUILD)/Makefile
 
+# Clone the OpenWRT repository, configure it and copy the example kernel config
 $(OPENWRT_DIR):
 	git clone $(OPENWRT_GIT)
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
 	cp $(HERE)/example-config $(OPENWRT_DIR)/.config
 
+# Copy the OpenWRT feed file
 $(OPENWRT_FEED_FILE):
 	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
-	
+
+# Aapply the PirateBox feed
 apply_PirateBox_feed: $(OPENWRT_FEED_FILE)
 	echo "src-git piratebox $(PIRATEBOX_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
 
@@ -81,15 +85,15 @@ apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
-###  Pulls an overall refresh
+# Pulls an overall refresh
 update_all_feeds:
 	cd $(OPENWRT_DIR) && ./scripts/feeds update -a
 
-### Installs all packages from local-feed folder to build-environment
+# Installs all packages from local-feed folder to build-environment
 install_local_feed:
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p local -a
 
-### Installs all packages from remote git repository to build environment
+# Installs all packages from remote git repository to build environment
 install_piratebox_feed:
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p piratebox -a
 
