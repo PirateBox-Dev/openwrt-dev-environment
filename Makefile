@@ -113,13 +113,6 @@ run_repository_all: $(WWW)
 	cd $(OPENWRT_DIR) && make package/index
 	cd $(WWW) && sudo python3 -m http.server 80
 
-##### Menuconfig parameters
-#### Libraries --> libffmpeg-mini (M)
-#### Utilities --> box-installer(M)
-####               extendRoot(M)--->
-####                        (*)
-#### Network  --> PirateBox ---> (all)
-
 ###   Side note, following package need to be added manually to openwrt/bin/ar71xx/packages/
 ###    * piratebox-mesh
 ###    * pbxopkg 
