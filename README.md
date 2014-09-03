@@ -41,7 +41,7 @@ Detailed information about the OpenWRT build system may be found in the OpenWRT 
 
 2. Apply the PirateBox OpenWRT feed 
 
-        make apply_PirateBox_feed
+        make apply_piratebox_feed
 
 3. Update all feeds
 
