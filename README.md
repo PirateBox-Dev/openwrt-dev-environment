@@ -55,25 +55,13 @@ Detailed information about the OpenWRT build system may be found in the OpenWRT 
 
         make create_piratebox_script_image
 
-6. Prepare the Kernel
-Copy the Kernel config file:
+6. Build OpenWRT
+If you have more than four cores, do not forget to adjust the __CORES__ variable in the Makefile.
+This will copy the default kernel config and start building OpenWRT.
 
-       cp example-config openwrt/.config
-Some configuration has to be adjusted:
-
-        cd openwrt
-        make menuconfig
-set the options:
-
-        Libraries --> libffmpeg-mini (M)  
-        Utilities --> box-installer(M)
-                      extendRoot(M) --> (*)
-        Network   --> PirateBox --> (all)
-
-7. Build OpenWRT:
-
-        make -j 4
-The __-j__ flag needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
+        make build_openwrt
+        
+The __CORES__ variable in the Makefile needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
 Building the OpenWRT image may take a long time, depending on your machine, up to a couple of hours.
 
 8. Aquire missing packages    

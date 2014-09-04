@@ -1,4 +1,5 @@
 HERE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+CORES=4
 
 OPENWRT_GIT=git://git.openwrt.org/12.09/openwrt.git
 OPENWRT_DIR=$(HERE)/openwrt
@@ -38,6 +39,7 @@ info:
 	@ echo "* install_piratebox_feed"
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
+	@ echo "* build_openwrt"
 	@ echo "* run_repository_all"
 	@ echo "* clean"
 
@@ -58,12 +60,11 @@ $(IMAGE_BUILD):
 	cd $(IMAGE_BUILD) && git checkout AA-with-installer
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1|" $(IMAGE_BUILD)/Makefile
 
-# Clone the OpenWRT repository, configure it and copy the example kernel config
+# Clone the OpenWRT repository, configure it
 $(OPENWRT_DIR):
 	git clone $(OPENWRT_GIT)
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
-	cp $(HERE)/configs/kernel $(OPENWRT_DIR)/.config
 
 # Copy the OpenWRT feed file
 $(OPENWRT_FEED_FILE):
@@ -114,6 +115,11 @@ install_local_feed:
 # Installs all packages from remote git repository to build environment
 install_piratebox_feed:
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p piratebox -a
+
+# Copy kernel config and build openwrt
+build_openwrt:
+	cp $(HERE)/configs/kernel $(OPENWRT_DIR)/.config
+	cd $(OPENWRT_DIR) && make -j $(CORES)
 
 ## Run a repository, that will only contain files having "all" as naming
 ##  pattern.
