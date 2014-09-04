@@ -60,20 +60,17 @@ If you have more than four cores, do not forget to adjust the __CORES__ variable
 This will copy the default kernel config and start building OpenWRT.
 
         make build_openwrt
-        
 The __CORES__ variable in the Makefile needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
 Building the OpenWRT image may take a long time, depending on your machine, up to a couple of hours.
 
-8. Aquire missing packages    
-Two packages are not __yet__ in the OpenWRT repository. You have to aquire them manually:
+7. Aquire missing packages    
+There are a couple of packages that did not make it in the OpenWRT repo yet, so you need to acquire them manually::
 
-        wget http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P bin/ar71xx/packages
-        wget http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P bin/ar71xx/packages
+        make acquire_packages
 
-9. Start local repository    
+8. Start local repository    
 After building OpenWRT you can start your local repository (you best start this in a seperate terminal since it wil lblock the current terminal):
 
-        cd ..
         make run_repository_all
 Now surf to __localhost__ and verify that the repository is up and running.
 

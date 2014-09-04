@@ -121,6 +121,11 @@ build_openwrt:
 	cp $(HERE)/configs/kernel $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && make -j $(CORES)
 
+# Acquire the packages that are not in the official OpenWRT repository yet
+acquire_packages:
+	wget http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+
 ## Run a repository, that will only contain files having "all" as naming
 ##  pattern.
 ## I use that local-www repository for the openwrt-image-build.
