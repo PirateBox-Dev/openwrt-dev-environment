@@ -47,7 +47,7 @@ $(PIRATEBOXSCRIPTS):
 
 # Create piratebox script image and copy it to the build directory if available
 create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
-	cd $(PIRATEBOXSCRIPTS) && make cleanall
+	cd $(PIRATEBOXSCRIPTS) && make clea
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
 
