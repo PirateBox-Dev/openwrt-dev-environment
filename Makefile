@@ -127,6 +127,13 @@ acquire_packages:
 	wget http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
+# Build the piratebox firmware images and install.zip
+piratebox:
+	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox
+	@ echo "Build process completed."
+	@ echo "========================"
+	@ echo "Your build is now available in $(IMAGE_BUILD)/target_piratebox"
+
 ## Run a repository, that will only contain files having "all" as naming
 ##  pattern.
 ## I use that local-www repository for the openwrt-image-build.
