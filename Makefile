@@ -46,7 +46,7 @@ $(OPENWRT_DIR):
 	git clone $(OPENWRT_GIT)
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
-	cp $(HERE)/example-config $(OPENWRT_DIR)/.config
+	cp $(HERE)/configs/kernel $(OPENWRT_DIR)/.config
 
 $(OPENWRT_FEED_FILE):
 	cp  $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
