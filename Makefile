@@ -40,6 +40,7 @@ info:
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
 	@ echo "* build_openwrt"
+	@ echo "* acquire_packages"
 	@ echo "* run_repository_all"
 	@ echo "* clean"
 
