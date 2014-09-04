@@ -43,6 +43,8 @@ info:
 	@ echo "* acquire_packages"
 	@ echo "* run_repository_all"
 	@ echo "* clean"
+	@ echo "=============================="
+	@ echo "* auto_build_stable"
 
 # Clone the PirateBoxScripts repository
 $(PIRATEBOXSCRIPTS):
@@ -130,6 +132,7 @@ acquire_packages:
 # Build the piratebox firmware images and install.zip
 piratebox:
 	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox
+	@ echo "========================"
 	@ echo "Build process completed."
 	@ echo "========================"
 	@ echo "Your build is now available in $(IMAGE_BUILD)/target_piratebox"
@@ -151,7 +154,7 @@ $(WWW):
 run_repository_all: $(WWW)
 	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
-	cd $(WWW) && sudo python3 -m http.server 80
+	cd $(WWW) && sudo python3 -m http.server 80 > ../server.log 2>&1 &
 
 ## Note: Toolkit-build need to run single threaded, because sometimes 
 ##       build-dependencies fail. Package-Build run fine multi-threaded.
@@ -166,8 +169,17 @@ run_repository_all: $(WWW)
 ##
 #####
 
-auto_build_stable: openwrt_env apply_piratebox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
-	cd $(OPENWRT_DIR) && make -j 16
+auto_build_stable: \
+	clean \
+	openwrt_env \
+	apply_piratebox_feed \
+	update_all_feeds \
+	install_piratebox_feed \
+	create_piratebox_script_image \
+	build_openwrt \
+	acquire_packages \
+	run_repository_all \
+	piratebox
 
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
 
