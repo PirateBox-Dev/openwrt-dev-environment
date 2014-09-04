@@ -39,6 +39,7 @@ info:
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
 	@ echo "* run_repository_all"
+	@ echo "* clean"
 
 # Clone the PirateBoxScripts repository
 $(PIRATEBOXSCRIPTS):
@@ -150,3 +151,12 @@ auto_build_stable: openwrt_env apply_piratebox_feed install_piratebox_feed updat
 	cd $(OPENWRT_DIR) && make -j 16
 
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
+
+# Delete all files and directories that were created during the build process
+clean:
+	rm -rf $(OPENWRT_DIR)
+	rm -rf $(WWW)
+	rm -rf $(LOCAL_FEED_FOLDER)
+	rm -rf $(IMAGE_BUILD)
+	rm -rf $(PIRATEBOXSCRIPTS)
+	rm -rf target_piratebox/
