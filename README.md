@@ -69,7 +69,7 @@ There are a couple of packages that did not make it in the OpenWRT repo yet, so 
         make acquire_packages
 
 8. Start local repository    
-After building OpenWRT you can start your local repository (you best start this in a seperate terminal since it wil lblock the current terminal):
+After building OpenWRT you can start your local repository (the server will run in the background and will log all outputs to server.log):
 
         make run_repository_all
 Now surf to __localhost__ and verify that the repository is up and running.
