@@ -191,3 +191,4 @@ clean:
 	rm -rf $(IMAGE_BUILD)
 	rm -rf $(PIRATEBOXSCRIPTS)
 	rm -rf target_piratebox/
+	rm -rf server.log
