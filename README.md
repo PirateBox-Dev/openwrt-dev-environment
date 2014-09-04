@@ -55,50 +55,31 @@ Detailed information about the OpenWRT build system may be found in the OpenWRT 
 
         make create_piratebox_script_image
 
-6. Prepare the Kernel
-Copy the Kernel config file:
+6. Build OpenWRT
+If you have more than four cores, do not forget to adjust the __CORES__ variable in the Makefile.
+This will copy the default kernel config and start building OpenWRT.
 
-       cp example-config openwrt/.config
-Some configuration has to be adjusted:
-
-        cd openwrt
-        make menuconfig
-set the options:
-
-        Libraries --> libffmpeg-mini (M)  
-        Utilities --> box-installer(M)
-                      extendRoot(M) --> (*)
-        Network   --> PirateBox --> (all)
-
-7. Build OpenWRT:
-
-        make -j 4
-The __-j__ flag needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
+        make build_openwrt
+The __CORES__ variable in the Makefile needs to be adjusted to your system, a good rule of thumb for the value is to use the amount of cores you have available on your build machine.     
 Building the OpenWRT image may take a long time, depending on your machine, up to a couple of hours.
 
-8. Aquire missing packages    
-Two packages are not __yet__ in the OpenWRT repository. You have to aquire them manually:
+7. Aquire missing packages    
+There are a couple of packages that did not make it in the OpenWRT repo yet, so you need to acquire them manually::
 
-        wget http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P bin/ar71xx/packages
-        wget http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P bin/ar71xx/packages
+        make acquire_packages
 
-9. Start local repository    
-After building OpenWRT you can start your local repository (you best start this in a seperate terminal since it wil lblock the current terminal):
+8. Start local repository    
+After building OpenWRT you can start your local repository (the server will run in the background and will log all outputs to server.log):
 
-        cd ..
         make run_repository_all
 Now surf to __localhost__ and verify that the repository is up and running.
 
-10. Build the PirateBox image     
-To build the PirateBox image run:
+9. Build the PirateBox image     
+To build the PirateBox image and istall.zip run:
 
-        cd openwrt-image-build
-        git stash
-        git checkout AA-with-installer
-        git stash pop # Fix the merge conflict for the future, check out the right branch at the beginning
-        make all INSTALL_TARGET=piratebox
+        make piratebox
 
-11. Enjoy your build     
+10. Enjoy your build     
 You should now have a directory called __target_piratebox__.
 This directory contains all supported firmware images and the install_piratebox.zip
 

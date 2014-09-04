@@ -1,4 +1,5 @@
 HERE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+CORES=4
 
 OPENWRT_GIT=git://git.openwrt.org/12.09/openwrt.git
 OPENWRT_DIR=$(HERE)/openwrt
@@ -38,8 +39,12 @@ info:
 	@ echo "* install_piratebox_feed"
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
+	@ echo "* build_openwrt"
+	@ echo "* acquire_packages"
 	@ echo "* run_repository_all"
 	@ echo "* clean"
+	@ echo "=============================="
+	@ echo "* auto_build_stable"
 
 # Clone the PirateBoxScripts repository
 $(PIRATEBOXSCRIPTS):
@@ -47,7 +52,7 @@ $(PIRATEBOXSCRIPTS):
 
 # Create piratebox script image and copy it to the build directory if available
 create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
-	cd $(PIRATEBOXSCRIPTS) && make cleanall
+	cd $(PIRATEBOXSCRIPTS) && make clean
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
 
@@ -58,12 +63,11 @@ $(IMAGE_BUILD):
 	cd $(IMAGE_BUILD) && git checkout AA-with-installer
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1|" $(IMAGE_BUILD)/Makefile
 
-# Clone the OpenWRT repository, configure it and copy the example kernel config
+# Clone the OpenWRT repository, configure it
 $(OPENWRT_DIR):
 	git clone $(OPENWRT_GIT)
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
-	cp $(HERE)/configs/kernel $(OPENWRT_DIR)/.config
 
 # Copy the OpenWRT feed file
 $(OPENWRT_FEED_FILE):
@@ -115,6 +119,24 @@ install_local_feed:
 install_piratebox_feed:
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p piratebox -a
 
+# Copy kernel config and build openwrt
+build_openwrt:
+	cp $(HERE)/configs/kernel $(OPENWRT_DIR)/.config
+	cd $(OPENWRT_DIR) && make -j $(CORES)
+
+# Acquire the packages that are not in the official OpenWRT repository yet
+acquire_packages:
+	wget http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+
+# Build the piratebox firmware images and install.zip
+piratebox:
+	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox
+	@ echo "========================"
+	@ echo "Build process completed."
+	@ echo "========================"
+	@ echo "Your build is now available in $(IMAGE_BUILD)/target_piratebox"
+
 ## Run a repository, that will only contain files having "all" as naming
 ##  pattern.
 ## I use that local-www repository for the openwrt-image-build.
@@ -132,7 +154,7 @@ $(WWW):
 run_repository_all: $(WWW)
 	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
-	cd $(WWW) && sudo python3 -m http.server 80
+	cd $(WWW) && sudo python3 -m http.server 80 > ../server.log 2>&1 &
 
 ## Note: Toolkit-build need to run single threaded, because sometimes 
 ##       build-dependencies fail. Package-Build run fine multi-threaded.
@@ -147,8 +169,17 @@ run_repository_all: $(WWW)
 ##
 #####
 
-auto_build_stable: openwrt_env apply_piratebox_feed install_piratebox_feed update_all_feeds create_piratebox_script_image
-	cd $(OPENWRT_DIR) && make -j 16
+auto_build_stable: \
+	clean \
+	openwrt_env \
+	apply_piratebox_feed \
+	update_all_feeds \
+	install_piratebox_feed \
+	create_piratebox_script_image \
+	build_openwrt \
+	acquire_packages \
+	run_repository_all \
+	piratebox
 
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
 
@@ -160,3 +191,4 @@ clean:
 	rm -rf $(IMAGE_BUILD)
 	rm -rf $(PIRATEBOXSCRIPTS)
 	rm -rf target_piratebox/
+	rm -rf server.log
