@@ -8,6 +8,7 @@ OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
 
 WWW=$(HERE)/local_www
+WWW_PID_FILE=$(HERE)/www.pid
 
 IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
 IMAGE_BUILD=openwrt-image-build
@@ -42,6 +43,8 @@ info:
 	@ echo "* build_openwrt"
 	@ echo "* acquire_packages"
 	@ echo "* run_repository_all"
+	@ echo "* piratebox"
+	@ echo "* stop_repository_all"
 	@ echo "* clean"
 	@ echo "=============================="
 	@ echo "* auto_build_stable"
@@ -154,7 +157,11 @@ $(WWW):
 run_repository_all: $(WWW)
 	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
-	cd $(WWW) && sudo python3 -m http.server 80 > ../server.log 2>&1 &
+	cd $(WWW) && touch $(WWW_PID_FILE) && sudo -u root bash -c 'python3 -m http.server 80 & echo "$$!" > $(WWW_PID_FILE)'
+
+# Stop the repository if a pid file is present
+stop_repository_all:
+	if [ -e $(WWW_PID_FILE) ]; then sudo kill -9 `cat $(WWW_PID_FILE)`; rm $(WWW_PID_FILE); fi;
 
 ## Note: Toolkit-build need to run single threaded, because sometimes 
 ##       build-dependencies fail. Package-Build run fine multi-threaded.
@@ -178,17 +185,18 @@ auto_build_stable: \
 	create_piratebox_script_image \
 	build_openwrt \
 	acquire_packages \
+	stop_repository_all \
 	run_repository_all \
-	piratebox
+	piratebox \
+	stop_repository_all
 
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
 
 # Delete all files and directories that were created during the build process
-clean:
+clean: stop_repository_all
 	rm -rf $(OPENWRT_DIR)
 	rm -rf $(WWW)
 	rm -rf $(LOCAL_FEED_FOLDER)
 	rm -rf $(IMAGE_BUILD)
 	rm -rf $(PIRATEBOXSCRIPTS)
 	rm -rf target_piratebox/
-	rm -rf server.log
