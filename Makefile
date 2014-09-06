@@ -1,14 +1,26 @@
 HERE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-CORES=4
 
+# This is the value used for the -j flag when running make.
+# Adjust this to a appropriate value for your system a good rule of thumb is the
+# amount of cores your machine has available. +1 if you don't need to use the
+# machine while building.
+THREADS=4
+
+# The port to run the local repository on.
+#
+# If you set this port to something < 1024 make sure to run the server in the
+# run_repository_all target with sudo and also kill it with sudo in the
+# stop_repository_all target.
+WWW_PORT=2342
+WWW=$(HERE)/local_www
+WWW_PID_FILE=$(HERE)/www.pid
+
+# OpenWRT related settings
 OPENWRT_GIT=git://git.openwrt.org/12.09/openwrt.git
 OPENWRT_DIR=$(HERE)/openwrt
 OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
-
-WWW=$(HERE)/local_www
-WWW_PID_FILE=$(HERE)/www.pid
 
 IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
 IMAGE_BUILD=openwrt-image-build
@@ -65,7 +77,7 @@ create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
 	cd $(IMAGE_BUILD) && git checkout AA-with-installer
-	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1|" $(IMAGE_BUILD)/Makefile
+	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
 
 # Clone the OpenWRT repository, configure it
 $(OPENWRT_DIR):
@@ -126,7 +138,7 @@ install_piratebox_feed:
 # Copy kernel config and build openwrt
 build_openwrt:
 	cp $(HERE)/configs/openwrt $(OPENWRT_DIR)/.config
-	cd $(OPENWRT_DIR) && make -j $(CORES)
+	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
 # Acquire the packages that are not in the official OpenWRT repository yet
 acquire_packages:
@@ -158,11 +170,11 @@ $(WWW):
 run_repository_all: $(WWW)
 	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
-	cd $(WWW) && touch $(WWW_PID_FILE) && sudo -u root bash -c 'python3 -m http.server 80 & echo "$$!" > $(WWW_PID_FILE)'
+	cd $(WWW) && touch $(WWW_PID_FILE) && python3 -m http.server $(WWW_PORT) & echo "$$!" > $(WWW_PID_FILE)
 
 # Stop the repository if a pid file is present
 stop_repository_all:
-	if [ -e $(WWW_PID_FILE) ]; then sudo kill -9 `cat $(WWW_PID_FILE)`; rm $(WWW_PID_FILE); fi;
+	if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)`; rm $(WWW_PID_FILE); fi;
 
 ## Note: Toolkit-build need to run single threaded, because sometimes 
 ##       build-dependencies fail. Package-Build run fine multi-threaded.
@@ -177,6 +189,7 @@ stop_repository_all:
 ##
 #####
 
+# Build the piratebox stable release
 auto_build_stable: \
 	clean \
 	openwrt_env \
@@ -191,12 +204,25 @@ auto_build_stable: \
 	piratebox \
 	stop_repository_all
 
-auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
+auto_build_snapshot: \
+	clean \
+	openwrt_env \
+	apply_local_feed \
+	switch_local_feed_to_dev \
+	update_all_feeds \
+	install_local_feed \
+	create_piratebox_script_image \
+	build_openwrt \
+	acquire_packages \
+	stop_repository_all \
+	run_repository_all \
+	piratebox \
+	stop_repository_all
 
 # Prepare for a new build without deleting the whole toolchain
 clean: stop_repository_all
 	if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
-	if [ -e $(OPENWRT_FEED_FILE) ]; then rm $(OPENWRT_FEED_FILE); fi;
+	rm -rf $(OPENWRT_FEED_FILE)
 
 # Delete all files and directories that were created during the build process
 cleanall: stop_repository_all
