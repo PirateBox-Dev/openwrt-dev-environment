@@ -56,7 +56,7 @@ info:
 	@ echo "* piratebox"
 	@ echo "* stop_repository_all"
 	@ echo "* clean"
-	@ echo "* cleanall"
+	@ echo "* distclean"
 	@ echo "=============================="
 	@ echo "* auto_build_stable"
 
@@ -236,7 +236,7 @@ clean: stop_repository_all
 	rm -rf $(OPENWRT_FEED_FILE)
 
 # Delete all files and directories that were created during the build process
-cleanall: stop_repository_all
+distclean: stop_repository_all
 	rm -rf $(OPENWRT_DIR)
 	rm -rf $(WWW)
 	rm -rf $(LOCAL_FEED_FOLDER)
