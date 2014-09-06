@@ -60,12 +60,9 @@ info:
 	@ echo "=============================="
 	@ echo "* auto_build_stable"
 
-# Clone the PirateBoxScripts repository
-$(PIRATEBOXSCRIPTS):
-	git clone $(PIRATEBOXSCRIPTS_GIT) $@
-
 # Create piratebox script image and copy it to the build directory if available
-create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
+create_piratebox_script_image:
+	git clone $(PIRATEBOXSCRIPTS_GIT) $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && make clean
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
