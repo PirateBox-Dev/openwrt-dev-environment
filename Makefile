@@ -56,16 +56,14 @@ info:
 	@ echo "* piratebox"
 	@ echo "* stop_repository_all"
 	@ echo "* clean"
-	@ echo "* cleanall"
+	@ echo "* distclean"
 	@ echo "=============================="
+	@ echo "Available auto build targets:"
 	@ echo "* auto_build_stable"
 
-# Clone the PirateBoxScripts repository
-$(PIRATEBOXSCRIPTS):
-	git clone $(PIRATEBOXSCRIPTS_GIT) $@
-
 # Create piratebox script image and copy it to the build directory if available
-create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
+create_piratebox_script_image:
+	git clone $(PIRATEBOXSCRIPTS_GIT) $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && make clean
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
@@ -160,13 +158,10 @@ piratebox:
 ##   For getting our packages into the custom image, we inject our local repository into the build process and get our package-dependencies from there.
 ##      --- see more informations in openwrt-image-build folder.
 
-# Prepare a folder for the repository
-$(WWW):
+# Create local repository and start http server to serve files
+run_repository_all:
 	mkdir -p $(WWW)
 	ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all
-
-# Rebuild the package index and run the local repository
-run_repository_all: $(WWW)
 	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
 	cd $(WWW) && touch $(WWW_PID_FILE) && python3 -m http.server $(WWW_PORT) & echo "$$!" > $(WWW_PID_FILE)
@@ -236,7 +231,7 @@ clean: stop_repository_all
 	rm -rf $(OPENWRT_FEED_FILE)
 
 # Delete all files and directories that were created during the build process
-cleanall: stop_repository_all
+distclean: stop_repository_all
 	rm -rf $(OPENWRT_DIR)
 	rm -rf $(WWW)
 	rm -rf $(LOCAL_FEED_FOLDER)
