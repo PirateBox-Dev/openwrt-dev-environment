@@ -195,7 +195,7 @@ auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
 
 # Prepare for a new build without deleting the toolchain
 clean: stop_repository_all
-if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
+	if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
 
 # Delete all files and directories that were created during the build process
 cleanall: stop_repository_all
