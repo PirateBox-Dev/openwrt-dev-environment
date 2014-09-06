@@ -58,6 +58,7 @@ info:
 	@ echo "* clean"
 	@ echo "* distclean"
 	@ echo "=============================="
+	@ echo "Available auto build targets:"
 	@ echo "* auto_build_stable"
 
 # Create piratebox script image and copy it to the build directory if available
