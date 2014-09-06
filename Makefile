@@ -60,10 +60,14 @@ info:
 	@ echo "=============================="
 	@ echo "Available auto build targets:"
 	@ echo "* auto_build_stable"
+	@ echo "* auto_build_snapshot"
+
+# Clone the PirateBoxScripts repository
+$(PIRATEBOXSCRIPTS):
+	git clone $(PIRATEBOXSCRIPTS_GIT) $@
 
 # Create piratebox script image and copy it to the build directory if available
-create_piratebox_script_image:
-	git clone $(PIRATEBOXSCRIPTS_GIT) $(PIRATEBOXSCRIPTS)
+create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && make clean
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
@@ -111,10 +115,6 @@ switch_local_feed_to_dev:
 # no dev branch for usb config scripts yet
 #	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
-## Running this command will pull the "local_feed" folder generation
-##    if you want to create your own, you should do this before running
-##    make apply_local_feed
-##
 apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 	echo "src-link local $(LOCAL_FEED_FOLDER)" >> $(OPENWRT_FEED_FILE)
 

@@ -99,6 +99,30 @@ This directory contains all supported firmware images and the install_piratebox.
 
 You can now continue with the [auto installation](http://piratebox.cc/openwrt:diy) step.
 
+### Local feed variant
+#### For the impatient
+If you just want to build s snapshot release run:
+
+    make auto_build_snapshot
+
+This will automated run the steps described below and may take from minutes, to hours, depending on your system. There are some points while making this target where you will be asked for your root password so you have to either sit it out or run it as root.
+
+#### Step by step
+The local feed variant only differs in a couple of steps from the piratebox feed method.
+If you want to add your own repositories to the local feed, create a local feed directory
+
+    mkdir local_feed
+
+And add your repositories. Then run the steps from above.
+
+Instead of __Step 2__ you run:
+
+    make apply_local_feed
+
+And instead of __Step 4__ you run:
+
+    make install install_local_feed
+
 ### Troubleshooting
 #### Builing OpenWRT fails with errors
 Run __make__ in the openwrt folder single threaded and with the __S=v__ flag to get detailed output:
