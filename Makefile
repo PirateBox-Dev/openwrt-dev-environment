@@ -37,8 +37,6 @@ PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
 PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
 
-.PHONY: info
-
 # The default make target.
 # Display some information about the available targets.
 info:
@@ -112,7 +110,8 @@ switch_local_feed_to_dev:
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/librarybox)
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/piratebox)
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/extendRoot)
-# no dev branch yet	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
+# no dev branch for usb config scripts yet
+#	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
 ## Running this command will pull the "local_feed" folder generation
 ##    if you want to create your own, you should do this before running
@@ -142,8 +141,8 @@ build_openwrt:
 
 # Acquire the packages that are not in the official OpenWRT repository yet
 acquire_packages:
-	wget http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
-	wget http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
 piratebox:
@@ -174,7 +173,16 @@ run_repository_all: $(WWW)
 
 # Stop the repository if a pid file is present
 stop_repository_all:
-	if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)`; rm $(WWW_PID_FILE); fi;
+	if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)` && rm $(WWW_PID_FILE); fi;
+
+start_timer:
+	@ date +%s > time.log
+
+end_timer:
+	@ echo Build took \
+		$$(expr \( $$(date +%s) - $$(cat time.log) \) / 60) min \
+		$$(expr \( $$(date +%s) - $$(cat time.log) \) % 60) sec
+	@ rm -rf time.log
 
 ## Note: Toolkit-build need to run single threaded, because sometimes 
 ##       build-dependencies fail. Package-Build run fine multi-threaded.
@@ -191,6 +199,7 @@ stop_repository_all:
 
 # Build the piratebox stable release
 auto_build_stable: \
+	start_timer \
 	clean \
 	openwrt_env \
 	apply_piratebox_feed \
@@ -199,12 +208,13 @@ auto_build_stable: \
 	create_piratebox_script_image \
 	build_openwrt \
 	acquire_packages \
-	stop_repository_all \
 	run_repository_all \
 	piratebox \
-	stop_repository_all
+	stop_repository_all \
+	end_timer
 
 auto_build_snapshot: \
+	start_timer \
 	clean \
 	openwrt_env \
 	apply_local_feed \
@@ -214,13 +224,14 @@ auto_build_snapshot: \
 	create_piratebox_script_image \
 	build_openwrt \
 	acquire_packages \
-	stop_repository_all \
 	run_repository_all \
 	piratebox \
-	stop_repository_all
+	stop_repository_all \
+	end_timer
 
 # Prepare for a new build without deleting the whole toolchain
 clean: stop_repository_all
+	if [ -e $(IMAGE_BUILD) ]; then cd $(IMAGE_BUILD) && make clean; fi;
 	if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
 	rm -rf $(OPENWRT_FEED_FILE)
 

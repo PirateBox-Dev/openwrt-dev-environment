@@ -28,7 +28,15 @@ There are two methods to build the image:
 Use the __local feed__ variant if you want to use __other__ branches __than__ the __master__ branch.
 
 
-### PirateBox feed
+### PirateBox feed variant
+#### For the impatient
+If you just want to build the stable release run:
+
+    make auto_build_stable
+
+This will automated run the steps described below and may take from minutes, to hours, depending on your system. There are some points while making this target where you will be asked for your root password so you have to either sit it out or run it as root.
+
+#### Step by step
 To build your PirateBox image execute the following steps in order:
     
 1. Clone and configure OpenWRT and clone the image build script
@@ -72,7 +80,8 @@ There are a couple of packages that did not make it in the OpenWRT repo yet, so 
 After building OpenWRT you can start your local repository:
 
         make run_repository_all
-Now surf to __localhost__ and verify that the repository is up and running.
+Now surf to http://localhost:2342 and verify that the repository is up and running.
+If you want to change the port of the local repository, set it in the __Makefile__.
 
 9. Build the PirateBox image     
 To build the PirateBox image and istall.zip run:
@@ -92,6 +101,6 @@ You can now continue with the [auto installation](http://piratebox.cc/openwrt:di
 
 ### Troubleshooting
 #### Builing OpenWRT fails with errors
-Run __make__ single threaded and with the __S=v__ flag to get detailed output:
+Run __make__ in the openwrt folder single threaded and with the __S=v__ flag to get detailed output:
 
-    make -j1 S=v
+    make S=v
