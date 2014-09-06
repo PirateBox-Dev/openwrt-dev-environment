@@ -46,6 +46,7 @@ info:
 	@ echo "* piratebox"
 	@ echo "* stop_repository_all"
 	@ echo "* clean"
+	@ echo "* cleanall"
 	@ echo "=============================="
 	@ echo "* auto_build_stable"
 
@@ -124,7 +125,7 @@ install_piratebox_feed:
 
 # Copy kernel config and build openwrt
 build_openwrt:
-	cp $(HERE)/configs/kernel $(OPENWRT_DIR)/.config
+	cp $(HERE)/configs/openwrt $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && make -j $(CORES)
 
 # Acquire the packages that are not in the official OpenWRT repository yet
@@ -192,8 +193,12 @@ auto_build_stable: \
 
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
 
-# Delete all files and directories that were created during the build process
+# Prepare for a new build without deleting the toolchain
 clean: stop_repository_all
+if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
+
+# Delete all files and directories that were created during the build process
+cleanall: stop_repository_all
 	rm -rf $(OPENWRT_DIR)
 	rm -rf $(WWW)
 	rm -rf $(LOCAL_FEED_FOLDER)
