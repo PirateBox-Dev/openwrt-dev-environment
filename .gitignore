@@ -4,3 +4,5 @@ openwrt-image-build/
 local_www/
 PirateBoxScripts_Webserver/
 server.log
+*pid
+*log
