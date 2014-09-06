@@ -138,9 +138,14 @@ build_openwrt:
 	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
 # Acquire the packages that are not in the official OpenWRT repository yet
-acquire_packages:
+acquire_stable_packages:
+	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+
+acquire_beta_packages:
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget -nv http://beta.openwrt.piratebox.de/all/packages/piratebox-mod-imageboard_0.1.3-1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
 piratebox:
@@ -202,7 +207,7 @@ auto_build_stable: \
 	install_piratebox_feed \
 	create_piratebox_script_image \
 	build_openwrt \
-	acquire_packages \
+	acquire_stable_packages \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
@@ -218,7 +223,7 @@ auto_build_snapshot: \
 	install_local_feed \
 	create_piratebox_script_image \
 	build_openwrt \
-	acquire_packages \
+	acquire_beta_packages \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
