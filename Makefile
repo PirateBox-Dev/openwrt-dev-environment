@@ -193,9 +193,10 @@ auto_build_stable: \
 
 auto_build_snapshot: openwrt_env apply_local_feed switch_local_feed_to_dev
 
-# Prepare for a new build without deleting the toolchain
+# Prepare for a new build without deleting the whole toolchain
 clean: stop_repository_all
 	if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
+	if [ -e $(OPENWRT_FEED_FILE) ]; then rm $(OPENWRT_FEED_FILE); fi;
 
 # Delete all files and directories that were created during the build process
 cleanall: stop_repository_all
@@ -204,4 +205,3 @@ cleanall: stop_repository_all
 	rm -rf $(LOCAL_FEED_FOLDER)
 	rm -rf $(IMAGE_BUILD)
 	rm -rf $(PIRATEBOXSCRIPTS)
-	rm -rf target_piratebox/
