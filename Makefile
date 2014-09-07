@@ -60,10 +60,14 @@ info:
 	@ echo "=============================="
 	@ echo "Available auto build targets:"
 	@ echo "* auto_build_stable"
+	@ echo "* auto_build_snapshot"
+
+# Clone the PirateBoxScripts repository
+$(PIRATEBOXSCRIPTS):
+	git clone $(PIRATEBOXSCRIPTS_GIT) $@
 
 # Create piratebox script image and copy it to the build directory if available
-create_piratebox_script_image:
-	git clone $(PIRATEBOXSCRIPTS_GIT) $(PIRATEBOXSCRIPTS)
+create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && make clean
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
@@ -111,10 +115,6 @@ switch_local_feed_to_dev:
 # no dev branch for usb config scripts yet
 #	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
-## Running this command will pull the "local_feed" folder generation
-##    if you want to create your own, you should do this before running
-##    make apply_local_feed
-##
 apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 	echo "src-link local $(LOCAL_FEED_FOLDER)" >> $(OPENWRT_FEED_FILE)
 
@@ -138,9 +138,14 @@ build_openwrt:
 	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
 # Acquire the packages that are not in the official OpenWRT repository yet
-acquire_packages:
+acquire_stable_packages:
+	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+
+acquire_beta_packages:
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+	wget -nv http://beta.openwrt.piratebox.de/all/packages/piratebox-mod-imageboard_0.1.3-1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
 piratebox:
@@ -202,12 +207,13 @@ auto_build_stable: \
 	install_piratebox_feed \
 	create_piratebox_script_image \
 	build_openwrt \
-	acquire_packages \
+	acquire_stable_packages \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
 	end_timer
 
+# Build the piratebox snapshot release
 auto_build_snapshot: \
 	start_timer \
 	clean \
@@ -218,7 +224,7 @@ auto_build_snapshot: \
 	install_local_feed \
 	create_piratebox_script_image \
 	build_openwrt \
-	acquire_packages \
+	acquire_beta_packages \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
