@@ -100,7 +100,7 @@ $(PIRATEBOX_BETA_FEED):
 
 # Apply PirateBox beta feed
 apply_piratebox_beta_feed: $(PIRATEBOX_BETA_FEED)
-	cd $(PIRATEBOX_BETA_FEED_DIR) && git checkout development
+	cd $(PIRATEBOX_BETA_FEED) && git checkout development
 	echo "src-link piratebox $(PIRATEBOX_BETA_FEED)" >> $(OPENWRT_FEED_FILE)
 
 $(LOCAL_FEED_FOLDER):
