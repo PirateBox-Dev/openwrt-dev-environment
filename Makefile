@@ -21,6 +21,7 @@ OPENWRT_DIR=$(HERE)/openwrt
 OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
+PIRATEBOX_BETA_FEED=piratebox_beta_feed
 
 IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
 IMAGE_BUILD=openwrt-image-build
@@ -60,6 +61,7 @@ info:
 	@ echo "=============================="
 	@ echo "Available auto build targets:"
 	@ echo "* auto_build_stable"
+	@ echo "* auto_build_beta"
 	@ echo "* auto_build_snapshot"
 
 # Clone the PirateBoxScripts repository
@@ -92,6 +94,14 @@ $(OPENWRT_FEED_FILE):
 # Apply the PirateBox feed
 apply_piratebox_feed: $(OPENWRT_FEED_FILE)
 	echo "src-git piratebox $(PIRATEBOX_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
+
+$(PIRATEBOX_BETA_FEED):
+	git clone $(PIRATEBOX_FEED_GIT) $@
+
+# Apply PirateBox beta feed
+apply_piratebox_beta_feed: $(PIRATEBOX_BETA_FEED)
+	cd $(PIRATEBOX_BETA_FEED_DIR) && git checkout development
+	echo "src-link piratebox $(PIRATEBOX_BETA_FEED)" >> $(OPENWRT_FEED_FILE)
 
 $(LOCAL_FEED_FOLDER):
 	mkdir -p $(LOCAL_FEED_FOLDER)
@@ -213,6 +223,23 @@ auto_build_stable: \
 	stop_repository_all \
 	end_timer
 
+# Build the piratebox beta release, this uses the development branch of the
+# openwrt-piratebox-feed
+auto_build_beta: \
+	start_timer \
+	clean \
+	openwrt_env \
+	apply_piratebox_beta_feed \
+	update_all_feeds \
+	install_piratebox_feed \
+	create_piratebox_script_image \
+	build_openwrt \
+	acquire_beta_packages \
+	run_repository_all \
+	piratebox \
+	stop_repository_all \
+	end_timer
+
 # Build the piratebox snapshot release
 auto_build_snapshot: \
 	start_timer \
@@ -243,3 +270,4 @@ distclean: stop_repository_all
 	rm -rf $(LOCAL_FEED_FOLDER)
 	rm -rf $(IMAGE_BUILD)
 	rm -rf $(PIRATEBOXSCRIPTS)
+	rm -rf $(PIRATEBOX_BETA_FEED)
