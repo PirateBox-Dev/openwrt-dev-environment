@@ -21,7 +21,7 @@ OPENWRT_DIR=$(HERE)/openwrt
 OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
-PIRATEBOX_BETA_FEED=piratebox_beta_feed
+PIRATEBOX_BETA_FEED=$(HERE)/piratebox_beta_feed
 
 IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
 IMAGE_BUILD=openwrt-image-build
@@ -52,7 +52,8 @@ info:
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
 	@ echo "* build_openwrt"
-	@ echo "* acquire_packages"
+	@ echo "* acquire_stable_packages"
+	@ echo "* acquire_beta_packages"
 	@ echo "* run_repository_all"
 	@ echo "* piratebox"
 	@ echo "* stop_repository_all"
@@ -64,15 +65,7 @@ info:
 	@ echo "* auto_build_beta"
 	@ echo "* auto_build_snapshot"
 
-# Clone the PirateBoxScripts repository
-$(PIRATEBOXSCRIPTS):
-	git clone $(PIRATEBOXSCRIPTS_GIT) $@
-
-# Create piratebox script image and copy it to the build directory if available
-create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
-	cd $(PIRATEBOXSCRIPTS) && make clean
-	cd $(PIRATEBOXSCRIPTS) && make shortimage
-	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
+openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
 # Clone the imagebuild repository, checkout the AA-with-installer branch and
 # adapt the Makefile to use this local repository.
@@ -87,21 +80,34 @@ $(OPENWRT_DIR):
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
 
-# Copy the OpenWRT feed file
-$(OPENWRT_FEED_FILE):
-	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
+# Create piratebox script image and copy it to the build directory if available
+create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
+	cd $(PIRATEBOXSCRIPTS) && make clean
+	cd $(PIRATEBOXSCRIPTS) && make shortimage
+	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
+
+# Clone the PirateBoxScripts repository
+$(PIRATEBOXSCRIPTS):
+	git clone $(PIRATEBOXSCRIPTS_GIT) $@
 
 # Apply the PirateBox feed
 apply_piratebox_feed: $(OPENWRT_FEED_FILE)
 	echo "src-git piratebox $(PIRATEBOX_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
 
-$(PIRATEBOX_BETA_FEED):
-	git clone $(PIRATEBOX_FEED_GIT) $@
+# Copy the OpenWRT feed file
+$(OPENWRT_FEED_FILE):
+	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
 
 # Apply PirateBox beta feed
-apply_piratebox_beta_feed: $(PIRATEBOX_BETA_FEED)
-	cd $(PIRATEBOX_BETA_FEED_DIR) && git checkout development
+apply_piratebox_beta_feed: $(OPENWRT_FEED_FILE) $(PIRATEBOX_BETA_FEED)
 	echo "src-link piratebox $(PIRATEBOX_BETA_FEED)" >> $(OPENWRT_FEED_FILE)
+
+copy_image_board: $(PIRATEBOX_BETA_FEED)
+	cp -r $(PIRATEBOX_BETA_FEED)/net/piratebox-mod-imageboard $(LOCAL_FEED_FOLDER)/
+
+$(PIRATEBOX_BETA_FEED):
+	git clone $(PIRATEBOX_FEED_GIT) $@
+	cd $(PIRATEBOX_BETA_FEED) && git checkout development
 
 $(LOCAL_FEED_FOLDER):
 	mkdir -p $(LOCAL_FEED_FOLDER)
@@ -113,10 +119,6 @@ $(LOCAL_FEED_FOLDER):
 
 ##test_local_folder:= $(wildcard $(LOCAL_FEED_FOLDER)/* )
 
-define git_checkout_development
-	cd $(1) && git checkout development
-endef
-
 switch_local_feed_to_dev:
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/box-installer)
 	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/librarybox)
@@ -125,10 +127,12 @@ switch_local_feed_to_dev:
 # no dev branch for usb config scripts yet
 #	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
+define git_checkout_development
+	cd $(1) && git checkout development
+endef
+
 apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 	echo "src-link local $(LOCAL_FEED_FOLDER)" >> $(OPENWRT_FEED_FILE)
-
-openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
 # Pulls an overall refresh
 update_all_feeds:
@@ -155,7 +159,7 @@ acquire_stable_packages:
 acquire_beta_packages:
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
-	wget -nv http://beta.openwrt.piratebox.de/all/packages/piratebox-mod-imageboard_0.1.3-1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+#wget -nv http://beta.openwrt.piratebox.de/all/packages/piratebox-mod-imageboard_0.1.3-1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
 piratebox:
@@ -248,6 +252,7 @@ auto_build_snapshot: \
 	apply_local_feed \
 	switch_local_feed_to_dev \
 	update_all_feeds \
+	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
 	build_openwrt \
