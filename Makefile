@@ -52,7 +52,8 @@ info:
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
 	@ echo "* build_openwrt"
-	@ echo "* acquire_packages"
+	@ echo "* acquire_stable_packages"
+	@ echo "* acquire_beta_packages"
 	@ echo "* run_repository_all"
 	@ echo "* piratebox"
 	@ echo "* stop_repository_all"
@@ -97,10 +98,13 @@ apply_piratebox_feed: $(OPENWRT_FEED_FILE)
 
 $(PIRATEBOX_BETA_FEED):
 	git clone $(PIRATEBOX_FEED_GIT) $@
+	cd $(PIRATEBOX_BETA_FEED) && git checkout development
+
+copy_image_board: $(PIRATEBOX_BETA_FEED)
+	cp -r $(PIRATEBOX_BETA_FEED)/net/piratebox-mod-imageboard $(LOCAL_FEED_FOLDER)/
 
 # Apply PirateBox beta feed
 apply_piratebox_beta_feed: $(PIRATEBOX_BETA_FEED)
-	cd $(PIRATEBOX_BETA_FEED) && git checkout development
 	echo "src-link piratebox $(PIRATEBOX_BETA_FEED)" >> $(OPENWRT_FEED_FILE)
 
 $(LOCAL_FEED_FOLDER):
@@ -155,7 +159,7 @@ acquire_stable_packages:
 acquire_beta_packages:
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
-	wget -nv http://beta.openwrt.piratebox.de/all/packages/piratebox-mod-imageboard_0.1.3-1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
+#wget -nv http://beta.openwrt.piratebox.de/all/packages/piratebox-mod-imageboard_0.1.3-1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
 piratebox:
@@ -248,6 +252,7 @@ auto_build_snapshot: \
 	apply_local_feed \
 	switch_local_feed_to_dev \
 	update_all_feeds \
+	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
 	build_openwrt \
