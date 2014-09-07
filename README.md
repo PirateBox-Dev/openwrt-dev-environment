@@ -74,7 +74,7 @@ Building the OpenWRT image may take a long time, depending on your machine, up t
 7. Aquire missing packages    
 There are a couple of packages that did not make it in the OpenWRT repo yet, so you need to acquire them manually::
 
-        make acquire_packages
+        make acquire_stable_packages
 
 8. Start local repository    
 After building OpenWRT you can start your local repository:
@@ -119,9 +119,13 @@ Instead of __Step 2__ you run:
 
     make apply_local_feed
 
-And instead of __Step 4__ you run:
+Instead of __Step 4__ you run:
 
     make install install_local_feed
+
+Instead of __Step 7__ you run:
+
+    make acquire_stable_packages
 
 ### Troubleshooting
 #### Builing OpenWRT fails with errors

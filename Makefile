@@ -213,6 +213,7 @@ auto_build_stable: \
 	stop_repository_all \
 	end_timer
 
+# Build the piratebox snapshot release
 auto_build_snapshot: \
 	start_timer \
 	clean \
