@@ -125,7 +125,7 @@ Instead of __Step 4__ you run:
 
 Instead of __Step 7__ you run:
 
-    make acquire_stable_packages
+    make acquire_beta_packages
 
 ### Troubleshooting
 #### Builing OpenWRT fails with errors
