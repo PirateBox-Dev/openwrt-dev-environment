@@ -123,6 +123,17 @@ Instead of __Step 7__ you run:
 
     make acquire_beta_packages
 
+### Cleaning up
+There are two different clean targets:     
+
+    make clean
+    
+Will clean the __openwrt-image-build__ directory and the __openwrt__ directory. It will however not delete the OpenWRT toolchain. It will also stop the local repository in case it is still running. This is also the first step executed when using any of the auto build targets.
+
+    make distclean
+    
+Will do the same as clean, but will also delete all directories and files pulled in while building. The directory will basically look like after a fresh clone.
+
 ### Troubleshooting
 #### Builing OpenWRT fails with errors
 Run __make__ in the openwrt folder single threaded and with the __S=v__ flag to get detailed output:
