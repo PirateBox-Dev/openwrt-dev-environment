@@ -74,7 +74,7 @@ Building the OpenWRT image may take a long time, depending on your machine, up t
 7. Aquire missing packages    
 There are a couple of packages that did not make it in the OpenWRT repo yet, so you need to acquire them manually::
 
-        make acquire_packages
+        make acquire_stable_packages
 
 8. Start local repository    
 After building OpenWRT you can start your local repository:
@@ -98,6 +98,34 @@ You should now have a directory called __target_piratebox__.
 This directory contains all supported firmware images and the install_piratebox.zip
 
 You can now continue with the [auto installation](http://piratebox.cc/openwrt:diy) step.
+
+### Local feed variant
+#### For the impatient
+If you just want to build s snapshot release run:
+
+    make auto_build_snapshot
+
+This will automated run the steps described below and may take from minutes, to hours, depending on your system. There are some points while making this target where you will be asked for your root password so you have to either sit it out or run it as root.
+
+#### Step by step
+The local feed variant only differs in a couple of steps from the piratebox feed method.
+If you want to add your own repositories to the local feed, create a local feed directory
+
+    mkdir local_feed
+
+And add your repositories. Then run the steps from above.
+
+Instead of __Step 2__ you run:
+
+    make apply_local_feed
+
+Instead of __Step 4__ you run:
+
+    make install install_local_feed
+
+Instead of __Step 7__ you run:
+
+    make acquire_beta_packages
 
 ### Troubleshooting
 #### Builing OpenWRT fails with errors
