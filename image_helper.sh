@@ -1,16 +1,12 @@
 #!/bin/sh
-
 #requires sudo rights
 
 pb_pb_srcImg_url="http://piratebox.aod-rpg.de/piratebox_ws_1.0_img.tar.gz"
 pb_pb_srcImg="piratebox_ws_1.0_img.tar.gz"
-
 pb_pbimg="./piratebox_image_file.img"
-
 mount_point="./mount_point"
 
-
-if [ -z "$1"  ] ; then
+if [ -z "$1"  ]; then
 	echo "usage of PirateBox image helper : "
 	echo "    ./image_helper.sh  <step>"
 	echo " "
@@ -26,49 +22,49 @@ if [ -z "$1"  ] ; then
 	exit 1
 fi
 
-
-if [ "$1" = "download" ] ; then
-	echo "(re)downloading..."
-	[ -e "$pb_pb_srcImg" ] && rm -v "$pb_pb_srcImg" 
-	wget "$pb_pb_srcImg_url"  -O "$pb_pb_srcImg"
+if [ "$1" = "download" ]; then
+	echo "(Re)Downloading..."
+	wget "${pb_pb_srcImg_url}" -O "${pb_pb_srcImg}"
 	shift
 fi
 
-if [ "$1" = "extract" ] ; then
-	echo "Extracting image file"
-	tar xzO -f "$pb_pb_srcImg" > "$pb_pbimg" 
+if [ "$1" = "extract" ]; then
+	echo "Extracting image file..."
+	tar xzO -f "${pb_pb_srcImg}" > "${pb_pbimg}"
 	shift
 fi
 
-if [ "$1" = "mount" ] ; then
-	echo "Mounting image file to $mount_point"
-	mkdir -p "$mount_point"
-	sudo mount -o loop,rw,sync, "$pb_pbimg" "$mount_point"
-	echo "tagging custom_version file"
-	sudo touch "$mount_point"/custom_image
+if [ "$1" = "mount" ]; then
+	echo "Mounting image file to ${mount_point}..."
+	mkdir -p "${mount_point}"
+	sudo mount -o loop,rw,sync, "${pb_pbimg}" "${mount_point}"
+	echo "Tagging custom_version file..."
+	sudo touch "${mount_point}/custom_image"
 	shift
 fi
 
-if [ "$1" = "umount" ] ; then
-	echo "unmounting image file again"
-	sudo umount "$mount_point"
+if [ "$1" = "umount" ]; then
+	echo "Unmounting image file..."
+	sudo umount "${mount_point}"
 	shift
 fi
 
-if [ "$1" = "package" ] ; then
-	echo "packagin it to $pb_pb_srcImg again"
-	rm  $pb_pb_srcImg
-	tar czf $pb_pb_srcImg $pb_pbimg
-	echo "done, transfer it now to the install folder on you PirateBox' USB stick"
-	echo "You can transfer via scp as well, like "
-	echo "  #  scp $pb_pb_srcImg root@192.168.1.1:/mnt/usb/install "
-	echo " and run"
+if [ "$1" = "package" ]; then
+	echo "Packaging to ${pb_pb_srcImg}..."
+	rm  "${pb_pb_srcImg}"
+	tar czf "${pb_pb_srcImg}" "${pb_pbimg}"
 	echo " "
-	echo " in ANY CASE, you have to run the following commands on the Box to activate the changes"
-	echo "  #  /etc/init.d/piratebox stop"
-	echo "  #  /etc/init.d/pirateobx updatePB"
-	echo " and start afertwards"
-	echo "  # /etc/init.d/piratebox start"
+	echo "Done with packaging."
+	echo "Transfer the package to the install folder on your PirateBox' USB stick."
+	echo "You can either copy it to the USB stick directly or transfer via scp:"
+	echo " "
+	echo "    scp ${pb_pb_srcImg} root@192.168.1.1:/mnt/usb/install "
+	echo " "
+	echo "In any case, you have to run the following commands on the Box to activate the changes:"
+	echo " "
+	echo "    /etc/init.d/piratebox stop"
+	echo "    /etc/init.d/pirateobx updatePB"
+	echo "    /etc/init.d/piratebox start"
 	shift
 fi
 
