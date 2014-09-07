@@ -6,3 +6,5 @@ PirateBoxScripts_Webserver/
 server.log
 *pid
 *log
+*img
+*tar.gz
