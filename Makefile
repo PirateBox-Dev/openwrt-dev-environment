@@ -215,6 +215,19 @@ end_timer:
 		$$(expr \( $$(date +%s) - $$(cat time.log) \) % 60) sec
 	@ rm -rf time.log
 
+# Stop the repository if a pid file is present
+stop_repository_all:
+	if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)` && rm $(WWW_PID_FILE); fi;
+
+start_timer:
+	@ date +%s > time.log
+
+end_timer:
+	@ echo Build took \
+		$$(expr \( $$(date +%s) - $$(cat time.log) \) / 60) min \
+		$$(expr \( $$(date +%s) - $$(cat time.log) \) % 60) sec
+	@ rm -rf time.log
+
 # Build the piratebox stable release
 auto_build_stable: \
 	start_timer \
