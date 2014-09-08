@@ -5,7 +5,7 @@ This collection and documentation is for developing on scratch on PirateBox-Open
 This repository is intended to get you started with a development environment to build your own PirateBox images - no matter if you just want to enable an additional Kernel feature, remaster your PirateBox image or start developing for the PirateBox.
 
 ## What this repository is not
-* __NO__ newbie guide. You should know your way around in Makefiles you should also have some knowledge about building OpenWRT. In doubt follow the reference Links.
+* __NO__ newbie guide. You should know your way around in Makefiles you should also have some knowledge about building OpenWRT. In doubt follow the reference Links - if they do not help, feel free to file an issue.
 * __SHOULD NOT__ be used if you only want to create a customized OpenWRT image. If you want to do that, use [openwrt-image-build](http://wiki.openwrt.org/doc/howto/obtain.firmware.generate) instead.
 
 ## Prerequisites
@@ -139,3 +139,10 @@ Will do the same as clean, but will also delete all directories and files pulled
 Run __make__ in the openwrt folder single threaded and with the __S=v__ flag to get detailed output:
 
     make S=v
+
+### Benchmarks
+This table is a short overview of build times on different systems. Initial is the time it took to build the first image, including toolchain. Following is the time it takes to build once the toolchain is available. Those values are by far not exact. Throughout the build process a lot of packages are fetched of the internet, so your speed also plays a big role. The times are intended to give you a bit of a feel of how long it will take you to build.
+
+| CPU                         | Cores | Threads | RAM | Initial | Following |
+|-----------------------------|:-----:|:-------:|:---:|--------:|----------:|
+|Intel i7-4700MQ CPU @ 2.40GHz|8      |8        |8GB  |45:46    |28:22      |
