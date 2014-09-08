@@ -116,16 +116,15 @@ $(LOCAL_FEED_FOLDER):
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_LIBRARYBOX_GIT) librarybox
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_EXTENDROOT_GIT) extendRoot
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOX_GIT) piratebox
-
 ##test_local_folder:= $(wildcard $(LOCAL_FEED_FOLDER)/* )
 
 switch_local_feed_to_dev:
-	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/box-installer)
-	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/librarybox)
-	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/piratebox)
-	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/extendRoot)
+	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/box-installer)
+	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/librarybox)
+	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox)
+	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/extendRoot)
 # no dev branch for usb config scripts yet
-#	$(call git_checkout_development,$(LOCAL_FEED_FOLDER)/usb-config-scripts)
+#	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
 define git_checkout_development
 	cd $(1) && git checkout development
@@ -138,6 +137,11 @@ apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 update_all_feeds:
 	cd $(OPENWRT_DIR) && ./scripts/feeds update -a
 
+# Remember that you might have to switch the the branches on git-packages like
+# the openwrt-packages in the feed folder or PirateBoxScripts_Webserver to get
+# the correct versions together (before release 1.0 it is a bit inconstent due
+# to a restructuration)
+
 # Installs all packages from local-feed folder to build-environment
 install_local_feed:
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p local -a
@@ -146,20 +150,32 @@ install_local_feed:
 install_piratebox_feed:
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p piratebox -a
 
-# Copy kernel config and build openwrt
+# Copy OpenWRT config and build toolchain and OpenWRT
+#
+# Note: Toolkit-build needs to run single threaded, because sometimes
+# build-dependencies fail.
+# Package-Build runs fine multi-threaded.
+#
+# Once the toolchain id build, you can build single packages in the openwrt
+# folder:
+#    make package/feeds/<feed>/<package>/compile
+#    make package/feeds/<feed>/<package>/install
 build_openwrt:
 	cp $(HERE)/configs/openwrt $(OPENWRT_DIR)/.config
+# cd $(OPENWRT_DIR) && make tools/install
+# cd $(OPENWRT_DIR) && make toolchain/install
 	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
-# Acquire the packages that are not in the official OpenWRT repository yet
+# Acquire the stable packages that are not in the official OpenWRT repository
+# yet
 acquire_stable_packages:
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
+# Acquire the beta packages that are not in the official OpenWRT repository yet
 acquire_beta_packages:
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
-#wget -nv http://beta.openwrt.piratebox.de/all/packages/piratebox-mod-imageboard_0.1.3-1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
 piratebox:
@@ -169,15 +185,16 @@ piratebox:
 	@ echo "========================"
 	@ echo "Your build is now available in $(IMAGE_BUILD)/target_piratebox"
 
-## Run a repository, that will only contain files having "all" as naming
-##  pattern.
-## I use that local-www repository for the openwrt-image-build.
-##   That toolset generates out of the stock OpenWRT ImageBuilder the custom files, we use.
-##   Read more about ImageBuild: http://wiki.openwrt.org/doc/howto/obtain.firmware.generate
-##   For getting our packages into the custom image, we inject our local repository into the build process and get our package-dependencies from there.
-##      --- see more informations in openwrt-image-build folder.
-
 # Create local repository and start http server to serve files
+#
+# Runs a repository, that will only contain files having "all" as naming
+# pattern.
+# This local www repository is used for the openwrt-image-build.
+# That toolset generates out of the stock OpenWRT ImageBuilder the custom files, we use.
+# Read more about ImageBuild: http://wiki.openwrt.org/doc/howto/obtain.firmware.generate
+# For getting our packages into the custom image, we inject our local repository
+# into the build process and get our package-dependencies from there.
+# --- see more informations in openwrt-image-build folder.
 run_repository_all:
 	mkdir -p $(WWW)
 	ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all
@@ -197,19 +214,6 @@ end_timer:
 		$$(expr \( $$(date +%s) - $$(cat time.log) \) / 60) min \
 		$$(expr \( $$(date +%s) - $$(cat time.log) \) % 60) sec
 	@ rm -rf time.log
-
-## Note: Toolkit-build need to run single threaded, because sometimes 
-##       build-dependencies fail. Package-Build run fine multi-threaded.
-
-# Later you can build single packages in the openwrt folder with
-#   make package/feeds/<feed>/<package>/{compile,install}
-
-######
-## Remember that you might have to switch the the branches
-##   on git-packages like openwrt-packages in feed folder
-##   or PirateBoxScripts_Webserver to get the correct versions together (before release 1.0 it is a bit inconstent due to a restructuration)
-##
-#####
 
 # Build the piratebox stable release
 auto_build_stable: \
