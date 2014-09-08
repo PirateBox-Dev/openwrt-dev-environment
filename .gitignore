@@ -3,6 +3,8 @@ openwrt/
 openwrt-image-build/
 local_www/
 PirateBoxScripts_Webserver/
-server.log
+piratebox_beta_feed/
 *pid
 *log
+*img
+*tar.gz
