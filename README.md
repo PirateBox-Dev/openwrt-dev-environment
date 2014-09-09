@@ -14,6 +14,10 @@ This repository is intended to get you started with a development environment to
         modprobe loop
 
 * Make sure you have at least __8BG__ free disk space
+* Make sure you have the following packages installed:
+  * git
+  * subversion
+  * python3
 
 ## Setting up the development enviroment
 There are two methods to build the image:
