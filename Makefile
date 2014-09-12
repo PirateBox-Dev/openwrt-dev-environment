@@ -64,6 +64,7 @@ info:
 	@ echo "* auto_build_stable"
 	@ echo "* auto_build_beta"
 	@ echo "* auto_build_snapshot"
+	@ echo "* auto_build_local"
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
@@ -268,6 +269,23 @@ auto_build_snapshot: \
 	openwrt_env \
 	apply_local_feed \
 	switch_local_feed_to_dev \
+	update_all_feeds \
+	copy_image_board \
+	install_local_feed \
+	create_piratebox_script_image \
+	build_openwrt \
+	acquire_beta_packages \
+	run_repository_all \
+	piratebox \
+	stop_repository_all \
+	end_timer
+
+# Build the piratebox from the local feed
+auto_build_local: \
+	start_timer \
+	clean \
+	openwrt_env \
+	apply_local_feed \
 	update_all_feeds \
 	copy_image_board \
 	install_local_feed \
