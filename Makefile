@@ -33,6 +33,7 @@ PACKAGE_USB_CONFIG_SCRIPTS_GIT=https://github.com/LibraryBox-Dev/package-openwrt
 PACKAGE_LIBRARYBOX_GIT=https://github.com/LibraryBox-Dev/package-openwrt-librarybox.git
 PACKAGE_EXTENDROOT_GIT=https://github.com/PirateBox-Dev/package-openwrt-extendRoot.git
 PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox.git
+PACKAGE_PBXOPKG_GIT=https://github.com/PirateBox-Dev/package-openwrt-pbxopkg.git
 
 # PirateBox-image files, which are used in the package
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
@@ -117,6 +118,7 @@ $(LOCAL_FEED_FOLDER):
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_LIBRARYBOX_GIT) librarybox
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_EXTENDROOT_GIT) extendRoot
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOX_GIT) piratebox
+	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PBXOPKG_GIT) pbxopkg
 ##test_local_folder:= $(wildcard $(LOCAL_FEED_FOLDER)/* )
 
 switch_local_feed_to_dev:
@@ -170,12 +172,10 @@ build_openwrt:
 # Acquire the stable packages that are not in the official OpenWRT repository
 # yet
 acquire_stable_packages:
-	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Acquire the beta packages that are not in the official OpenWRT repository yet
 acquire_beta_packages:
-	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
