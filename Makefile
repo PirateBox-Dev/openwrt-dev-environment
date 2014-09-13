@@ -20,6 +20,8 @@ OPENWRT_GIT=git://git.openwrt.org/12.09/openwrt.git
 OPENWRT_DIR=$(HERE)/openwrt
 OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
+PIRATEBOXMOD_DIR=$(HERE)/local_feed/piratebox-mod-imageboard
+
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
 PIRATEBOX_BETA_FEED=$(HERE)/piratebox_beta_feed
 
@@ -34,6 +36,7 @@ PACKAGE_LIBRARYBOX_GIT=https://github.com/LibraryBox-Dev/package-openwrt-library
 PACKAGE_EXTENDROOT_GIT=https://github.com/PirateBox-Dev/package-openwrt-extendRoot.git
 PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox.git
 PACKAGE_PBXOPKG_GIT=https://github.com/PirateBox-Dev/package-openwrt-pbxopkg.git
+PACKAGE_PIRATEBOXMESH_GIT=https://github.com/stylesuxx/package-openwrt-piratebox-mesh.git
 
 # PirateBox-image files, which are used in the package
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
@@ -104,8 +107,11 @@ $(OPENWRT_FEED_FILE):
 apply_piratebox_beta_feed: $(OPENWRT_FEED_FILE) $(PIRATEBOX_BETA_FEED)
 	echo "src-link piratebox $(PIRATEBOX_BETA_FEED)" >> $(OPENWRT_FEED_FILE)
 
-copy_image_board: $(PIRATEBOX_BETA_FEED)
+copy_image_board: $(PIRATEBOXMOD_DIR)
+
+$(PIRATEBOXMOD_DIR): $(PIRATEBOX_BETA_FEED)
 	cp -r $(PIRATEBOX_BETA_FEED)/net/piratebox-mod-imageboard $(LOCAL_FEED_FOLDER)/
+	rm -rf $(PIRATEBOX_BETA_FEED)
 
 $(PIRATEBOX_BETA_FEED):
 	git clone $(PIRATEBOX_FEED_GIT) $@
@@ -119,6 +125,7 @@ $(LOCAL_FEED_FOLDER):
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_EXTENDROOT_GIT) extendRoot
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOX_GIT) piratebox
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PBXOPKG_GIT) pbxopkg
+	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOXMESH_GIT) piratebox-mesh
 ##test_local_folder:= $(wildcard $(LOCAL_FEED_FOLDER)/* )
 
 switch_local_feed_to_dev:
@@ -126,6 +133,8 @@ switch_local_feed_to_dev:
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/librarybox)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/extendRoot)
+	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/pbxopkg)
+	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 # no dev branch for usb config scripts yet
 #	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
@@ -169,13 +178,25 @@ build_openwrt:
 # cd $(OPENWRT_DIR) && make toolchain/install
 	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
+build_openwrt_snapshot:
+	cp $(HERE)/configs/openwrt.snapshot $(OPENWRT_DIR)/.config
+# cd $(OPENWRT_DIR) && make tools/install
+# cd $(OPENWRT_DIR) && make toolchain/install
+	cd $(OPENWRT_DIR) && make -j $(THREADS)
+
 # Acquire the stable packages that are not in the official OpenWRT repository
 # yet
+#
+# This target will be obsolete in the future and is not used by the snapshot target
 acquire_stable_packages:
+	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Acquire the beta packages that are not in the official OpenWRT repository yet
+#
+# This target will be obsolete in the future and is not used by the snapshot target
 acquire_beta_packages:
+	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
@@ -273,14 +294,15 @@ auto_build_snapshot: \
 	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
-	build_openwrt \
-	acquire_beta_packages \
+	build_openwrt_snapshot \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
 	end_timer
 
 # Build the piratebox from the local feed
+# Does basically the same thing as the above target, except it does not switch
+# branches in the local feed.
 auto_build_local: \
 	start_timer \
 	clean \
@@ -290,8 +312,7 @@ auto_build_local: \
 	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
-	build_openwrt \
-	acquire_beta_packages \
+	build_openwrt_snapshot \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
@@ -302,6 +323,7 @@ clean: stop_repository_all
 	if [ -e $(IMAGE_BUILD) ]; then cd $(IMAGE_BUILD) && make clean; fi;
 	if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
 	rm -rf $(OPENWRT_FEED_FILE)
+	rm -rf $(IMAGE_BUILD)/target_piratebox
 
 # Delete all files and directories that were created during the build process
 distclean: stop_repository_all
