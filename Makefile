@@ -67,7 +67,7 @@ info:
 	@ echo "Available auto build targets:"
 	@ echo "* auto_build_stable"
 	@ echo "* auto_build_beta"
-	@ echo "* auto_build_snapshot"
+	@ echo "* auto_build_development"
 	@ echo "* auto_build_local"
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
@@ -284,7 +284,7 @@ auto_build_beta: \
 	end_timer
 
 # Build the piratebox snapshot release
-auto_build_snapshot: \
+auto_build_development: \
 	start_timer \
 	clean \
 	openwrt_env \
