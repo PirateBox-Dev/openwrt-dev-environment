@@ -36,7 +36,7 @@ PACKAGE_LIBRARYBOX_GIT=https://github.com/LibraryBox-Dev/package-openwrt-library
 PACKAGE_EXTENDROOT_GIT=https://github.com/PirateBox-Dev/package-openwrt-extendRoot.git
 PACKAGE_PIRATEBOX_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox.git
 PACKAGE_PBXOPKG_GIT=https://github.com/PirateBox-Dev/package-openwrt-pbxopkg.git
-PACKAGE_PIRATEBOXMESH_GIT=https://github.com/stylesuxx/package-openwrt-piratebox-mesh.git
+PACKAGE_PIRATEBOXMESH_GIT=https://github.com/PirateBox-Dev/package-openwrt-piratebox-mesh.git
 
 # PirateBox-image files, which are used in the package
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
