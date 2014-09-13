@@ -56,6 +56,7 @@ info:
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
 	@ echo "* build_openwrt"
+	@ echo "* build_openwrt_development"
 	@ echo "* acquire_stable_packages"
 	@ echo "* acquire_beta_packages"
 	@ echo "* run_repository_all"
@@ -178,7 +179,7 @@ build_openwrt:
 # cd $(OPENWRT_DIR) && make toolchain/install
 	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
-build_openwrt_snapshot:
+build_openwrt_development:
 	cp $(HERE)/configs/openwrt.snapshot $(OPENWRT_DIR)/.config
 # cd $(OPENWRT_DIR) && make tools/install
 # cd $(OPENWRT_DIR) && make toolchain/install
@@ -294,7 +295,7 @@ auto_build_development: \
 	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
-	build_openwrt_snapshot \
+	build_openwrt_development \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
@@ -312,7 +313,7 @@ auto_build_local: \
 	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
-	build_openwrt_snapshot \
+	build_openwrt_development \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
