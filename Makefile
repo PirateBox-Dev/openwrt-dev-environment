@@ -90,7 +90,7 @@ $(OPENWRT_DIR):
 create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && make clean
 	cd $(PIRATEBOXSCRIPTS) && make shortimage
-	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_1.0_img.tar.gz $(IMAGE_BUILD)
+	test -d $(IMAGE_BUILD) && cp $(PIRATEBOXSCRIPTS)/piratebox_ws_*_img.tar.gz $(IMAGE_BUILD)
 
 # Clone the PirateBoxScripts repository
 $(PIRATEBOXSCRIPTS):
@@ -129,13 +129,15 @@ $(LOCAL_FEED_FOLDER):
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_PIRATEBOXMESH_GIT) piratebox-mesh
 ##test_local_folder:= $(wildcard $(LOCAL_FEED_FOLDER)/* )
 
-switch_local_feed_to_dev:
+switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS) 
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/box-installer)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/librarybox)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/extendRoot)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/pbxopkg)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
+	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
+	$(call git_checkout_development, $(PIRATEBOXSCRIPTS))
 # no dev branch for usb config scripts yet
 #	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
