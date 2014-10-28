@@ -202,6 +202,10 @@ acquire_beta_packages:
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
+## Change configuration in imagebuilder for development snapshot
+piratebox_developement:
+	sed -i $(IMAGE_BUILD) 's|piratebox_ws_1.0_img.tar.gz|piratebox_ws_1.1_img.tar.gz|g'
+
 # Build the piratebox firmware images and install.zip
 piratebox:
 	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox
@@ -299,6 +303,7 @@ auto_build_development: \
 	create_piratebox_script_image \
 	build_openwrt_development \
 	run_repository_all \
+	piratebox_developement \
 	piratebox \
 	stop_repository_all \
 	end_timer
