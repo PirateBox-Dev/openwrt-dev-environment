@@ -4,7 +4,9 @@ HERE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 # Adjust this to a appropriate value for your system a good rule of thumb is the
 # amount of cores your machine has available. +1 if you don't need to use the
 # machine while building.
-THREADS=4
+# You may pass this parameter to your make command:
+#    make auto_build_stable THREADS=8
+THREADS?=4
 
 # The port to run the local repository on.
 #
