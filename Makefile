@@ -204,7 +204,7 @@ acquire_beta_packages:
 
 ## Change configuration in imagebuilder for development snapshot
 piratebox_developement:
-	sed -i $(IMAGE_BUILD) 's|piratebox_ws_1.0_img.tar.gz|piratebox_ws_1.1_img.tar.gz|g'
+	sed -i 's|piratebox_ws_1.0_img.tar.gz|piratebox_ws_1.1_img.tar.gz|g'  $(IMAGE_BUILD)/Makefile
 
 # Build the piratebox firmware images and install.zip
 piratebox:
