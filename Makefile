@@ -4,7 +4,9 @@ HERE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 # Adjust this to a appropriate value for your system a good rule of thumb is the
 # amount of cores your machine has available. +1 if you don't need to use the
 # machine while building.
-THREADS=4
+# You may pass this parameter to your make command:
+#    make auto_build_stable THREADS=8
+THREADS?=4
 
 # The port to run the local repository on.
 #
@@ -204,7 +206,7 @@ acquire_beta_packages:
 
 ## Change configuration in imagebuilder for development snapshot
 piratebox_developement:
-	sed -i $(IMAGE_BUILD) 's|piratebox_ws_1.0_img.tar.gz|piratebox_ws_1.1_img.tar.gz|g'
+	sed -i 's|piratebox_ws_1.0_img.tar.gz|piratebox_ws_1.1_img.tar.gz|g'  $(IMAGE_BUILD)/Makefile
 
 # Build the piratebox firmware images and install.zip
 piratebox:
@@ -246,7 +248,7 @@ end_timer:
 
 # Stop the repository if a pid file is present
 stop_repository_all:
-	if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)` && rm $(WWW_PID_FILE); fi;
+	- if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)` ; rm $(WWW_PID_FILE); fi;
 
 start_timer:
 	@ date +%s > time.log
