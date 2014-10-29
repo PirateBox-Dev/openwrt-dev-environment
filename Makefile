@@ -158,8 +158,7 @@ refresh_local_feeds: $(PIRATEBOXSCRIPTS)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_refresh_repository, $(PIRATEBOXSCRIPTS))
-# no dev branch for usb config scripts yet
-#       $(call git_checkout_development, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
 ## Refresh a repository feed
 define git_refresh_repository
