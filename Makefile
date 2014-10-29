@@ -47,6 +47,7 @@ info:
 	@ echo "* openwrt_env"
 	@ echo "* apply_piratebox_feed"
 	@ echo "* apply_local_feed"
+	@ echo "* refresh_local_feeds"
 	@ echo "* update_all_feeds"
 	@ echo "* install_piratebox_feed"
 	@ echo "* install_local_feed"
@@ -129,6 +130,25 @@ switch_local_feed_to_dev:
 define git_checkout_development
 	cd $(1) && git checkout development
 endef
+
+
+refresh_local_feeds: $(PIRATEBOXSCRIPTS)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/box-installer)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/librarybox)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/extendRoot)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/pbxopkg)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
+	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
+	$(call git_refresh_repository, $(PIRATEBOXSCRIPTS))
+# no dev branch for usb config scripts yet
+#       $(call git_checkout_development, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
+
+## Refresh a repository feed
+define git_refresh_repository
+        cd $(1) && git pull
+endef
+
 
 apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 	echo "src-link local $(LOCAL_FEED_FOLDER)" >> $(OPENWRT_FEED_FILE)
