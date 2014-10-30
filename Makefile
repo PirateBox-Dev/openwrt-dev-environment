@@ -254,7 +254,7 @@ run_repository_all:
 
 # Stop the repository if a pid file is present
 stop_repository_all:
-	if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)` && rm $(WWW_PID_FILE); fi;
+	- if [ -e $(WWW_PID_FILE) ]; then kill -9 `cat $(WWW_PID_FILE)` ; rm $(WWW_PID_FILE); fi;
 
 start_timer:
 	@ date +%s > time.log
