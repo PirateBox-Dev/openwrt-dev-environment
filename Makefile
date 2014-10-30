@@ -352,7 +352,7 @@ clean: stop_repository_all
 	if [ -e $(IMAGE_BUILD) ]; then cd $(IMAGE_BUILD) && make clean; fi;
 	if [ -e $(OPENWRT_DIR) ]; then cd $(OPENWRT_DIR) && make clean; fi;
 	rm -rf $(OPENWRT_FEED_FILE)
-	rm -rf $(IMAGE_BUILD)/target_piratebox
+	rm -rf $(IMAGE_BUILD)/target_* 
 
 # Delete all files and directories that were created during the build process
 distclean: stop_repository_all
