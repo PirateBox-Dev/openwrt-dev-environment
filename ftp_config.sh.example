@@ -1,0 +1,12 @@
+#!/bin/sh
+
+## Rename this file to ftp_config.sh
+
+# configuration parameters for lftp - ftp mirror upload
+HOST="development.piratebox.de"
+USER="foo"
+PASS="bar"
+FTPURL="ftp://$USER:$PASS@$HOST"
+RCD="/"
+## Comment this to avoid remote delete
+DELETE="--delete"
