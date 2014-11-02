@@ -141,8 +141,9 @@ switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/extendRoot)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/pbxopkg)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
-	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_checkout_development, $(PIRATEBOXSCRIPTS))
+	# Revert the changes we made in Makefile
+	cd $(IMAGE_BUILD) && git checkout . 
 	$(call git_checkout_development, $(IMAGE_BUILD))
 # no dev branch for usb config scripts yet
 #	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
