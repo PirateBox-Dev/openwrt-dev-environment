@@ -81,6 +81,8 @@ openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
 	cd $(IMAGE_BUILD) && git checkout AA-with-installer
+
+switch_to_local_webserver:
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
 
 # Clone the OpenWRT repository, configure it
@@ -141,6 +143,7 @@ switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_checkout_development, $(PIRATEBOXSCRIPTS))
+	$(call git_checkout_development, $(IMAGE_BUILD))
 # no dev branch for usb config scripts yet
 #	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
 
@@ -223,12 +226,8 @@ acquire_beta_packages:
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
-## Change configuration in imagebuilder for development snapshot
-piratebox_developement:
-	sed -i 's|piratebox_ws_1.0_img.tar.gz|piratebox_ws_1.1_img.tar.gz|g'  $(IMAGE_BUILD)/Makefile
-
 # Build the piratebox firmware images and install.zip
-piratebox:
+piratebox: switch_to_local_webserver
 	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox
 	@ echo "========================"
 	@ echo "Build process completed."
@@ -324,7 +323,6 @@ auto_build_development: \
 	create_piratebox_script_image \
 	build_openwrt_development \
 	run_repository_all \
-	piratebox_developement \
 	piratebox \
 	stop_repository_all \
 	end_timer
