@@ -70,7 +70,6 @@ if [ $RC -eq 0 ] ; then
 	cp -rv  $build_env/openwrt-image-build/target_* $deploy_folder 2>&1 >> $collect_log
 #	cp  $build_env/PirateBoxScripts_Webserver/piratebox_ws_*_img.tar.gz $deploy_folder  2>&1 >> $collect_log
 	cp  $build_env/PirateBoxScripts_Webserver/piratebox*.tar.gz $deploy_folder  2>&1 >> $collect_log
-        cp ~/.screen/
 
 	echo 'IndexOptions NameWidth=*' > $deploy_folder/.htaccess
 	echo 'IndexOptions NameWidth=*' > $deploy_folder/all/packages/.htaccess
@@ -79,7 +78,7 @@ fi
 
 
 ### Deploy
-. ftp_config.sh
+. $build_env/ftp_config.sh
 LCD="$deploy_folder"
 lftp -c "set ftp:list-options -a;
 set ftp:ssl-allow  false
