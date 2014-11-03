@@ -160,9 +160,11 @@ refresh_local_feeds: $(PIRATEBOXSCRIPTS)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/extendRoot)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/pbxopkg)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
-	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_refresh_repository, $(PIRATEBOXSCRIPTS))
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
+	# Revert the changes we made in Makefile
+	cd $(IMAGE_BUILD) && git checkout . 
+	$(call git_refresh_repository, $(IMAGE_BUILD))
 
 ## Refresh a repository feed
 define git_refresh_repository
