@@ -59,9 +59,9 @@ info:
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
 	@ echo "* build_openwrt"
+	@ echo "* build_openwrt_beta"
 	@ echo "* build_openwrt_development"
 	@ echo "* acquire_stable_packages"
-	@ echo "* acquire_beta_packages"
 	@ echo "* run_repository_all"
 	@ echo "* piratebox"
 	@ echo "* stop_repository_all"
@@ -75,6 +75,9 @@ info:
 	@ echo "* auto_build_local"
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
+
+set_console_env:
+	export LC_ALL=C
 
 # Clone the imagebuild repository, checkout the AA-with-installer branch and
 # adapt the Makefile to use this local repository.
@@ -153,7 +156,7 @@ define git_checkout_development
 endef
 
 
-refresh_local_feeds: $(PIRATEBOXSCRIPTS)
+refresh_local_feeds:  $(PIRATEBOXSCRIPTS)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/box-installer)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/librarybox)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox)
@@ -176,7 +179,7 @@ apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 	echo "src-link local $(LOCAL_FEED_FOLDER)" >> $(OPENWRT_FEED_FILE)
 
 # Pulls an overall refresh
-update_all_feeds:
+update_all_feeds: set_console_env
 	cd $(OPENWRT_DIR) && ./scripts/feeds update -a
 
 # Remember that you might have to switch the the branches on git-packages like
@@ -185,11 +188,11 @@ update_all_feeds:
 # to a restructuration)
 
 # Installs all packages from local-feed folder to build-environment
-install_local_feed:
+install_local_feed: set_console_env
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p local -a
 
 # Installs all packages from remote git repository to build environment
-install_piratebox_feed:
+install_piratebox_feed: set_console_env
 	cd $(OPENWRT_DIR) && ./scripts/feeds install -p piratebox -a
 
 # Copy OpenWRT config and build toolchain and OpenWRT
@@ -204,14 +207,14 @@ install_piratebox_feed:
 #    make package/feeds/<feed>/<package>/install
 build_openwrt:
 	cp $(HERE)/configs/openwrt $(OPENWRT_DIR)/.config
-# cd $(OPENWRT_DIR) && make tools/install
-# cd $(OPENWRT_DIR) && make toolchain/install
+	cd $(OPENWRT_DIR) && make -j $(THREADS)
+
+build_openwrt_beta:
+	cp $(HERE)/configs/openwrt.beta $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
 build_openwrt_development:
 	cp $(HERE)/configs/openwrt.snapshot $(OPENWRT_DIR)/.config
-# cd $(OPENWRT_DIR) && make tools/install
-# cd $(OPENWRT_DIR) && make toolchain/install
 	cd $(OPENWRT_DIR) && make -j $(THREADS)
 
 # Acquire the stable packages that are not in the official OpenWRT repository
@@ -222,12 +225,6 @@ acquire_stable_packages:
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
-# Acquire the beta packages that are not in the official OpenWRT repository yet
-#
-# This target will be obsolete in the future and is not used by the snapshot target
-acquire_beta_packages:
-	wget -nc http://beta.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
-	wget -nc http://beta.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.2_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
 # Build the piratebox firmware images and install.zip
 piratebox: switch_to_local_webserver
@@ -282,6 +279,7 @@ end_timer:
 
 # Build the piratebox stable release
 auto_build_stable: \
+	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
@@ -299,6 +297,7 @@ auto_build_stable: \
 # Build the piratebox beta release, this uses the development branch of the
 # openwrt-piratebox-feed
 auto_build_beta: \
+	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
@@ -306,8 +305,7 @@ auto_build_beta: \
 	update_all_feeds \
 	install_piratebox_feed \
 	create_piratebox_script_image \
-	build_openwrt \
-	acquire_beta_packages \
+	build_openwrt_beta \
 	run_repository_all \
 	piratebox \
 	stop_repository_all \
@@ -315,6 +313,7 @@ auto_build_beta: \
 
 # Build the piratebox snapshot release
 auto_build_development: \
+	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
@@ -334,6 +333,7 @@ auto_build_development: \
 # Does basically the same thing as the above target, except it does not switch
 # branches in the local feed.
 auto_build_local: \
+	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
