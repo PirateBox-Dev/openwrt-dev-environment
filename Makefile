@@ -43,6 +43,12 @@ PACKAGE_PIRATEBOXMESH_GIT=https://github.com/PirateBox-Dev/package-openwrt-pirat
 # PirateBox-image files, which are used in the package
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
 PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
+PIRATEBOXBETA_BRANCH="release-xx"
+
+# LibraryBox-image files
+LIBRARYBOXSCRIPTS_GIT=https://github.com/LibraryBox-Dev/LibraryBox-core.git
+LIBRARYBOXSCRIPTS=Librarybox-core/
+LIBRARYBOXBETA_BRANCH="release-2.1"
 
 # The default make target.
 # Display some information about the available targets.
@@ -58,6 +64,9 @@ info:
 	@ echo "* install_piratebox_feed"
 	@ echo "* install_local_feed"
 	@ echo "* create_piratebox_script_image"
+	@ echo "* create_librarybox_script_image"
+	@ echo "* checkout_librarybox_beta"
+	@ echo "* checkout_piratebox_beta (currently disabled in auto-beta)"
 	@ echo "* build_openwrt"
 	@ echo "* build_openwrt_beta"
 	@ echo "* build_openwrt_development"
@@ -75,9 +84,6 @@ info:
 	@ echo "* auto_build_local"
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
-
-set_console_env:
-	export LC_ALL=C
 
 # Clone the imagebuild repository, checkout the AA-with-installer branch and
 # adapt the Makefile to use this local repository.
@@ -104,6 +110,22 @@ create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
 $(PIRATEBOXSCRIPTS):
 	git clone $(PIRATEBOXSCRIPTS_GIT) $@
 
+# Create LibraryBox script image and copy it to the build directory if available
+create_librarybox_script_image: $(LIBRARYBOXSCRIPTS)
+	cd $(LIBRARYBOXSCRIPTS) && make clean
+	cd $(LIBRARYBOXSCRIPTS) && make shortimage
+	test -d $(IMAGE_BUILD) && cp $(LIBRARYBOXSCRIPTS)/librarybox_*_img.tar.gz $(IMAGE_BUILD)
+
+# Clone the LibraryBoxScripts repository
+$(LIBRARYBOXSCRIPTS):
+	git clone $(LIBRARYBOXSCRIPTS_GIT) $@
+
+checkout_librarybox_beta: $(LIBRARYBOXSCRIPTS)
+	cd $(LIBRARYBOXSCRIPTS) && git checkout $(LIBRARYBOXBETA_BRANCH)
+
+checkout_piratebox_beta: $(PIRATEBOXSCRIPTS)
+	cd $(PIRATEBOXSCRIPTS) && git checkout $(PIRATEBOXBETA_BRANCH)
+
 # Apply the PirateBox feed
 apply_piratebox_feed: $(OPENWRT_FEED_FILE)
 	echo "src-git piratebox $(PIRATEBOX_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
@@ -126,6 +148,10 @@ $(PIRATEBOX_BETA_FEED):
 	git clone $(PIRATEBOX_FEED_GIT) $@
 	cd $(PIRATEBOX_BETA_FEED) && git checkout development
 
+refresh_piratebox_beta_feed:
+	cd $(PIRATEBOX_BETA_FEED) && git checkout .
+	cd $(PIRATEBOX_BETA_FEED) && git pull
+
 $(LOCAL_FEED_FOLDER):
 	mkdir -p $(LOCAL_FEED_FOLDER)
 	cd $(LOCAL_FEED_FOLDER) && git clone $(PACKAGE_BOXINSTALLER_GIT) box-installer
@@ -145,6 +171,7 @@ switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/pbxopkg)
 	$(call git_checkout_development, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_checkout_development, $(PIRATEBOXSCRIPTS))
+	$(call git_checkout_development, $(LIBRARYBOXBOXSCRIPTS))
 	# Revert the changes we made in Makefile
 	cd $(IMAGE_BUILD) && git checkout . 
 	$(call git_checkout_development, $(IMAGE_BUILD))
@@ -164,6 +191,7 @@ refresh_local_feeds:  $(PIRATEBOXSCRIPTS)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/pbxopkg)
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/piratebox-mesh)
 	$(call git_refresh_repository, $(PIRATEBOXSCRIPTS))
+	$(call git_refresh_repository, $(LIBRARYBOXBOXSCRIPTS))
 	$(call git_refresh_repository, $(LOCAL_FEED_FOLDER)/usb-config-scripts)
 	# Revert the changes we made in Makefile
 	cd $(IMAGE_BUILD) && git checkout . 
@@ -179,8 +207,8 @@ apply_local_feed: $(LOCAL_FEED_FOLDER) $(OPENWRT_FEED_FILE)
 	echo "src-link local $(LOCAL_FEED_FOLDER)" >> $(OPENWRT_FEED_FILE)
 
 # Pulls an overall refresh
-update_all_feeds: set_console_env
-	cd $(OPENWRT_DIR) && ./scripts/feeds update -a
+update_all_feeds:  
+	cd $(OPENWRT_DIR) && export LC_ALL=C && ./scripts/feeds update -a
 
 # Remember that you might have to switch the the branches on git-packages like
 # the openwrt-packages in the feed folder or PirateBoxScripts_Webserver to get
@@ -188,12 +216,12 @@ update_all_feeds: set_console_env
 # to a restructuration)
 
 # Installs all packages from local-feed folder to build-environment
-install_local_feed: set_console_env
-	cd $(OPENWRT_DIR) && ./scripts/feeds install -p local -a
+install_local_feed: 
+	cd $(OPENWRT_DIR) && export LC_ALL=C && ./scripts/feeds install -p local -a
 
 # Installs all packages from remote git repository to build environment
-install_piratebox_feed: set_console_env
-	cd $(OPENWRT_DIR) && ./scripts/feeds install -p piratebox -a
+install_piratebox_feed: 
+	cd $(OPENWRT_DIR) && export LC_ALL=C && ./scripts/feeds install -p piratebox -a
 
 # Copy OpenWRT config and build toolchain and OpenWRT
 #
@@ -205,17 +233,17 @@ install_piratebox_feed: set_console_env
 # folder:
 #    make package/feeds/<feed>/<package>/compile
 #    make package/feeds/<feed>/<package>/install
-build_openwrt:
+build_openwrt: 
 	cp $(HERE)/configs/openwrt $(OPENWRT_DIR)/.config
-	cd $(OPENWRT_DIR) && make -j $(THREADS)
+	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
-build_openwrt_beta:
+build_openwrt_beta: 
 	cp $(HERE)/configs/openwrt.beta $(OPENWRT_DIR)/.config
-	cd $(OPENWRT_DIR) && make -j $(THREADS)
+	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
-build_openwrt_development:
+build_openwrt_development: 
 	cp $(HERE)/configs/openwrt.snapshot $(OPENWRT_DIR)/.config
-	cd $(OPENWRT_DIR) && make -j $(THREADS)
+	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
 # Acquire the stable packages that are not in the official OpenWRT repository
 # yet
@@ -225,6 +253,10 @@ acquire_stable_packages:
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
 
+# Adjust configuration on image builder if beta needs changes
+modify_image_builder_beta:
+	sed -i -e 's|librarybox_2.0_img.tar.gz|librarybox_2.1_img.tar.gz|g' $(IMAGE_BUILD)/Makefile
+	sed -i -e 's|TARGET_PACKAGE="extendRoot-$$(INSTALL_TARGET)"|TARGET_PACKAGE=extendRoot-$$(INSTALL_TARGET) extendRoot-minidlna|'   $(IMAGE_BUILD)/Makefile
 
 # Build the piratebox firmware images and install.zip
 piratebox: switch_to_local_webserver
@@ -233,6 +265,16 @@ piratebox: switch_to_local_webserver
 	@ echo "Build process completed."
 	@ echo "========================"
 	@ echo "Your build is now available in $(IMAGE_BUILD)/target_piratebox"
+
+# Build the piratebox firmware images and install.zip
+librarybox: switch_to_local_webserver
+	sed -i -e 's|piratebox-mesh|pbxmesh|g'  $(IMAGE_BUILD)/Makefile
+	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=librarybox
+	@ echo "========================"
+	@ echo "Build process completed."
+	@ echo "========================"
+	@ echo "Your build is now available in $(IMAGE_BUILD)/target_librarybox"
+
 
 # Create local repository and start http server to serve files
 #
@@ -246,7 +288,7 @@ piratebox: switch_to_local_webserver
 # --- see more informations in openwrt-image-build folder.
 run_repository_all:
 	mkdir -p $(WWW)
-	ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all
+	- ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all
 	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
 	cd $(OPENWRT_DIR) && make package/index
 	cd $(WWW) && touch $(WWW_PID_FILE) && python3 -m http.server $(WWW_PORT) & echo "$$!" > $(WWW_PID_FILE)
@@ -279,7 +321,6 @@ end_timer:
 
 # Build the piratebox stable release
 auto_build_stable: \
-	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
@@ -297,23 +338,26 @@ auto_build_stable: \
 # Build the piratebox beta release, this uses the development branch of the
 # openwrt-piratebox-feed
 auto_build_beta: \
-	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
 	apply_piratebox_beta_feed \
+	refresh_piratebox_beta_feed \
 	update_all_feeds \
 	install_piratebox_feed \
+	checkout_librarybox_beta \
 	create_piratebox_script_image \
+	create_librarybox_script_image \
 	build_openwrt_beta \
+	modify_image_builder_beta \
 	run_repository_all \
 	piratebox \
+	librarybox \
 	stop_repository_all \
 	end_timer
 
 # Build the piratebox snapshot release
 auto_build_development: \
-	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
@@ -323,9 +367,11 @@ auto_build_development: \
 	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
+	create_librarybox_script_image \
 	build_openwrt_development \
 	run_repository_all \
 	piratebox \
+	librarybox \
 	stop_repository_all \
 	end_timer
 
@@ -333,7 +379,6 @@ auto_build_development: \
 # Does basically the same thing as the above target, except it does not switch
 # branches in the local feed.
 auto_build_local: \
-	set_console_env \
 	start_timer \
 	clean \
 	openwrt_env \
@@ -342,9 +387,11 @@ auto_build_local: \
 	copy_image_board \
 	install_local_feed \
 	create_piratebox_script_image \
+	create_librarybox_script_image \
 	build_openwrt_development \
 	run_repository_all \
 	piratebox \
+	librarybox \
 	stop_repository_all \
 	end_timer
 
@@ -362,4 +409,5 @@ distclean: stop_repository_all
 	rm -rf $(LOCAL_FEED_FOLDER)
 	rm -rf $(IMAGE_BUILD)
 	rm -rf $(PIRATEBOXSCRIPTS)
+	rm -rf $(LIBRARYBOXBOXSCRIPTS)
 	rm -rf $(PIRATEBOX_BETA_FEED)
