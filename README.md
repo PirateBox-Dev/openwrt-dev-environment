@@ -24,7 +24,7 @@ There are two methods to build the image:
 * Using the *official* piratebox feed
 * Using a custom, local feed
 
-Use the __local feed__ variant if you want to use __other__ branches __than__ the __master__ or __develepmont__ branch or if you want to pull in your own packages.
+Use the __local feed__ variant if you want to use __other__ branches __than__ the __master__ or __development__ branch or if you want to pull in your own packages.
 
 ## For the impatient
 The Makefile comes with __four auto build targets__, you start them, lean back and wait for the finished images. They at some point all require you to enter the root password, so you either need to wait until you are prompted to input your password or set your sudo timeout to unlimited, do some action as sudo in the current terminal and than start the build process.
