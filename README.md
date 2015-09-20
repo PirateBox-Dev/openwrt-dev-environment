@@ -39,7 +39,7 @@ Will build the beta release with the **development branch** of the [openwrt-pira
 Will build a snapshot release, using a local feed including the __develompment branches__ of packages otherwise pulled in via the [openwrt-piratebox-feed](https://github.com/PirateBox-Dev/openwrt-piratebox-feed).
 
 * _make auto_build_local_     
-Will build a release using all the packages from the _local_feed_ folder, but without changing brnaches. It will use all the packages at the set branch und build from there. This is the best way to implement and test your own changes, using exactly the branches you want.
+Will build a release using all the packages from the _local_feed_ folder, but without changing branches. It will use all the packages at the set branch and build from there. This is the best way to implement and test your own changes, using exactly the branches you want.
 
 ## Detailed build instructions
 Find below the steps described each of the automated targets uses.
