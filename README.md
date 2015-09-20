@@ -102,7 +102,7 @@ If you now surf to http://localhost:2342 you can verify that the repository is u
 If you want to change the port of the local repository, set it in the __Makefile__.
 
 9. Build the PirateBox image     
-To build the PirateBox image and istall.zip run:
+To build the PirateBox image and install.zip run:
 
         make piratebox
 
