@@ -24,7 +24,7 @@ There are two methods to build the image:
 * Using the *official* piratebox feed
 * Using a custom, local feed
 
-Use the __local feed__ variant if you want to use __other__ branches __than__ the __master__ or __develepmont__ branch or if you want to pull in your own packages.
+Use the __local feed__ variant if you want to use __other__ branches __than__ the __master__ or __development__ branch or if you want to pull in your own packages.
 
 ## For the impatient
 The Makefile comes with __four auto build targets__, you start them, lean back and wait for the finished images. They at some point all require you to enter the root password, so you either need to wait until you are prompted to input your password or set your sudo timeout to unlimited, do some action as sudo in the current terminal and than start the build process.
@@ -39,7 +39,7 @@ Will build the beta release with the **development branch** of the [openwrt-pira
 Will build a snapshot release, using a local feed including the __develompment branches__ of packages otherwise pulled in via the [openwrt-piratebox-feed](https://github.com/PirateBox-Dev/openwrt-piratebox-feed).
 
 * _make auto_build_local_     
-Will build a release using all the packages from the _local_feed_ folder, but without changing brnaches. It will use all the packages at the set branch und build from there. This is the best way to implement and test your own changes, using exactly the branches you want.
+Will build a release using all the packages from the _local_feed_ folder, but without changing branches. It will use all the packages at the set branch and build from there. This is the best way to implement and test your own changes, using exactly the branches you want.
 
 ## Detailed build instructions
 Find below the steps described each of the automated targets uses.
