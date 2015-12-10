@@ -246,18 +246,9 @@ build_openwrt_development:
 	cp $(HERE)/configs/openwrt.snapshot $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
-# Acquire the stable packages that are not in the official OpenWRT repository
-# yet
-#
-# This target will be obsolete in the future and is not used by the snapshot target
-acquire_stable_packages:
-	wget -nc http://stable.openwrt.piratebox.de/all/packages/pbxopkg_0.0.6_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
-	wget -nc http://stable.openwrt.piratebox.de/all/packages/piratebox-mesh_1.1.1_all.ipk -P $(OPENWRT_DIR)/bin/ar71xx/packages
-
 # Adjust configuration on image builder if beta needs changes
 modify_image_builder_beta:
-	sed -i -e 's|librarybox_2.0_img.tar.gz|librarybox_2.1_img.tar.gz|g' $(IMAGE_BUILD)/Makefile
-	sed -i -e 's|TARGET_PACKAGE="extendRoot-$$(INSTALL_TARGET)"|TARGET_PACKAGE=extendRoot-$$(INSTALL_TARGET) extendRoot-minidlna|'   $(IMAGE_BUILD)/Makefile
+	sed -i -e 's|librarybox_2.1_img.tar.gz|librarybox_2.1_img.tar.gz|g' $(IMAGE_BUILD)/Makefile
 
 # Build the piratebox firmware images and install.zip
 piratebox: switch_to_local_webserver
@@ -329,10 +320,11 @@ auto_build_stable: \
 	update_all_feeds \
 	install_piratebox_feed \
 	create_piratebox_script_image \
+        create_librarybox_script_image \
 	build_openwrt \
-	acquire_stable_packages \
 	run_repository_all \
 	piratebox \
+        librarybox \
 	stop_repository_all \
 	end_timer
 
