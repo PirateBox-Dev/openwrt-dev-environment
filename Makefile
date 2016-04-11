@@ -130,6 +130,10 @@ apply_piratebox_dev_feed: $(OPENWRT_FEED_FILE)
 # Copy the OpenWRT feed file
 $(OPENWRT_FEED_FILE):
 	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
+	# Fix, SVN was deactivated in 2016
+	sed -i 's|^src-svn packages|#src-svn packages|' $(OPENWRT_FEED_FILE)
+	echo "src-git packages  git://git.openwrt.org/12.09/packages.git" >> $(OPENWRT_FEED_FILE)
+
 
 # Apply PirateBox beta feed
 apply_piratebox_beta_feed: $(OPENWRT_FEED_FILE) 
