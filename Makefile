@@ -24,8 +24,8 @@ OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
 
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
-PIRATEBOX_DEV_FEED_GIT="https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git;development"
-PIRATEBOX_BETA_FEED_GIT="https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git;release-xx"
+PIRATEBOX_DEV_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git;development
+PIRATEBOX_BETA_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git;release-xx
 
 IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
 IMAGE_BUILD=openwrt-image-build
@@ -135,9 +135,9 @@ $(OPENWRT_FEED_FILE):
 apply_piratebox_beta_feed: $(OPENWRT_FEED_FILE) 
 	echo "src-git piratebox $(PIRATEBOX_BETA_FEED_GIT)" >> $(OPENWRT_FEED_FILE)
 
-switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS) 
+switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS) $(LIBRARYBOXSCRIPTS) 
 	$(call git_checkout_development, $(PIRATEBOXSCRIPTS))
-	$(call git_checkout_development, $(LIBRARYBOXBOXSCRIPTS))
+	$(call git_checkout_development, $(LIBRARYBOXSCRIPTS))
 	# Revert the changes we made in Makefile
 	cd $(IMAGE_BUILD) && git checkout . 
 	$(call git_checkout_development, $(IMAGE_BUILD))
@@ -146,9 +146,9 @@ define git_checkout_development
 	cd $(1) && git checkout development
 endef
 
-refresh_local_feeds:  $(PIRATEBOXSCRIPTS)
+refresh_local_feeds:  $(PIRATEBOXSCRIPTS) $(LIBRARYBOXSCRIPTS)
 	$(call git_refresh_repository, $(PIRATEBOXSCRIPTS))
-	$(call git_refresh_repository, $(LIBRARYBOXBOXSCRIPTS))
+	$(call git_refresh_repository, $(LIBRARYBOXSCRIPTS))
 	# Revert the changes we made in Makefile
 	cd $(IMAGE_BUILD) && git checkout . 
 	$(call git_refresh_repository, $(IMAGE_BUILD))
@@ -330,4 +330,4 @@ distclean: stop_repository_all
 	rm -rf $(WWW)
 	rm -rf $(IMAGE_BUILD)
 	rm -rf $(PIRATEBOXSCRIPTS)
-	rm -rf $(LIBRARYBOXBOXSCRIPTS)
+	rm -rf $(LIBRARYBOXSCRIPTS)
