@@ -310,6 +310,7 @@ auto_build_development: \
 	switch_local_feed_to_dev \
 	refresh_local_feeds \
 	update_all_feeds \
+	install_piratebox_feed \
 	checkout_piratebox_dev \
 	checkout_librarybox_dev \
 	create_piratebox_script_image \
