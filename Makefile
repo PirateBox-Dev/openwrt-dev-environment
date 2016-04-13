@@ -79,7 +79,7 @@ $(IMAGE_BUILD):
 
 switch_to_local_webserver:
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
-	sed -i "s|http://development.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
+	sed -i "s|http://development.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
 
 # Clone the OpenWRT repository, configure it
 $(OPENWRT_DIR):
