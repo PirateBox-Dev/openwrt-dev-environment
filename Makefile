@@ -25,15 +25,16 @@ OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
 PIRATEBOX_DEV_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git;development
-PIRATEBOX_BETA_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git;release-xx
+PIRATEBOX_BETA_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git;release-1.1.0
 
 IMAGE_BUILD_GIT=https://github.com/PirateBox-Dev/openwrt-image-build.git
 IMAGE_BUILD=openwrt-image-build
+IMAGE_BUILD_BETA_BRANCH="release-1.1.0"
 
 # PirateBox-image files, which are used in the package
 PIRATEBOXSCRIPTS_GIT=https://github.com/PirateBox-Dev/PirateBoxScripts_Webserver.git
 PIRATEBOXSCRIPTS=PirateBoxScripts_Webserver/
-PIRATEBOXBETA_BRANCH="release-xx"
+PIRATEBOXBETA_BRANCH="release-1.1.0"
 
 # LibraryBox-image files
 LIBRARYBOXSCRIPTS_GIT=https://github.com/LibraryBox-Dev/LibraryBox-core.git
@@ -80,6 +81,7 @@ $(IMAGE_BUILD):
 switch_to_local_webserver:
 	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
 	sed -i "s|http://development.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
+	sed -i "s|http://beta.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
 
 # Clone the OpenWRT repository, configure it
 $(OPENWRT_DIR):
@@ -107,14 +109,8 @@ create_librarybox_script_image: $(LIBRARYBOXSCRIPTS)
 $(LIBRARYBOXSCRIPTS):
 	git clone $(LIBRARYBOXSCRIPTS_GIT) $@
 
-checkout_librarybox_beta: $(LIBRARYBOXSCRIPTS)
-	cd $(LIBRARYBOXSCRIPTS) && git checkout $(LIBRARYBOXBETA_BRANCH)
-
 checkout_librarybox_dev: $(LIBRARYBOXSCRIPTS)
 	cd $(LIBRARYBOXSCRIPTS) && git checkout development
-
-checkout_piratebox_beta: $(PIRATEBOXSCRIPTS)
-	cd $(PIRATEBOXSCRIPTS) && git checkout $(PIRATEBOXBETA_BRANCH)
 
 checkout_piratebox_dev: $(PIRATEBOXSCRIPTS)
 	cd $(PIRATEBOXSCRIPTS) && git checkout development
@@ -149,6 +145,12 @@ switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS) $(LIBRARYBOXSCRIPTS)
 define git_checkout_development
 	cd $(1) && git checkout development
 endef
+
+switch_local_feed_to_beta: $(PIRATEBOXSCRIPTS) $(LIBRARYBOXSCRIPTS)
+	cd $(PIRATEBOXSCRIPTS) && git checkout $(PIRATEBOXBETA_BRANCH)
+	cd $(LIBRARYBOXSCRIPTS) && git checkout $(LIBRARYBOXBETA_BRANCH)
+	cd $(IMAGE_BUILD) && git checkout .
+	cd $(IMAGE_BUILD) && git checkout $(IMAGE_BUILD_BETA_BRANCH)
 
 refresh_local_feeds:  $(PIRATEBOXSCRIPTS) $(LIBRARYBOXSCRIPTS)
 	$(call git_refresh_repository, $(PIRATEBOXSCRIPTS))
@@ -200,7 +202,7 @@ build_openwrt_development:
 
 # Adjust configuration on image builder if beta needs changes
 modify_image_builder_beta:
-	sed -i -e 's|librarybox_2.1_img.tar.gz|librarybox_2.1_img.tar.gz|g' $(IMAGE_BUILD)/Makefile
+	#	sed -i -e 's|librarybox_2.1_img.tar.gz|librarybox_2.1_img.tar.gz|g' $(IMAGE_BUILD)/Makefile
 
 # Build the piratebox firmware images and install.zip
 piratebox: switch_to_local_webserver
@@ -300,6 +302,26 @@ auto_build_stable: \
 #	librarybox \
 #	stop_repository_all \
 #	end_timer
+
+# Build beta releases
+auto_build_beta: \
+        start_timer \
+        clean \
+        openwrt_env \
+        apply_piratebox_beta_feed \
+        update_all_feeds \
+        install_piratebox_feed \
+	switch_local_feed_to_beta \
+        create_piratebox_script_image \
+        create_librarybox_script_image \
+        build_openwrt_beta \
+	modify_image_builder_beta \
+        run_repository_all \
+        piratebox \
+        librarybox \
+        stop_repository_all \
+        end_timer
+
 
 # Build the piratebox snapshot release
 auto_build_development: \
