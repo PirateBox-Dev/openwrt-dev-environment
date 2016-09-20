@@ -2408,3 +2408,5 @@ CONFIG_PACKAGE_MAC80211_MESH=y
 # CONFIG_PACKAGE_kmod-rtl8192se is not set
 # CONFIG_PACKAGE_kmod-rtlwifi is not set
 # CONFIG_PACKAGE_kmod-zd1211rw is not set
+#
+CONFIG_PIRATEBOX_BETA=y
