@@ -101,7 +101,7 @@ $(PIRATEBOXSCRIPTS):
 
 # Create LibraryBox script image and copy it to the build directory if available
 create_librarybox_script_image: $(LIBRARYBOXSCRIPTS)
-	cd $(LIBRARYBOXSCRIPTS) && make clean
+	cd $(LIBRARYBOXSCRIPTS) && make cleanall
 	cd $(LIBRARYBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(LIBRARYBOXSCRIPTS)/librarybox_*_img.tar.gz $(IMAGE_BUILD)
 
