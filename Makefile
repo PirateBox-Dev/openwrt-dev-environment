@@ -61,6 +61,7 @@ info:
 	@ echo "* acquire_stable_packages"
 	@ echo "* run_repository_all"
 	@ echo "* piratebox"
+	@ echo "* librarybox"
 	@ echo "* stop_repository_all"
 	@ echo "* clean"
 	@ echo "* distclean"
@@ -274,11 +275,11 @@ auto_build_stable: \
 	update_all_feeds \
 	install_piratebox_feed \
 	create_piratebox_script_image \
-        create_librarybox_script_image \
+	create_librarybox_script_image \
 	build_openwrt \
 	run_repository_all \
 	piratebox \
-        librarybox \
+	librarybox \
 	stop_repository_all \
 	end_timer
 
@@ -305,22 +306,22 @@ auto_build_stable: \
 
 # Build beta releases
 auto_build_beta: \
-        start_timer \
-        clean \
-        openwrt_env \
-        apply_piratebox_beta_feed \
-        update_all_feeds \
-        install_piratebox_feed \
+	start_timer \
+	clean \
+	openwrt_env \
+	apply_piratebox_beta_feed \
+	update_all_feeds \
+	install_piratebox_feed \
 	switch_local_feed_to_beta \
-        create_piratebox_script_image \
-        create_librarybox_script_image \
-        build_openwrt_beta \
+	create_piratebox_script_image \
+	create_librarybox_script_image \
+	build_openwrt_beta \
 	modify_image_builder_beta \
-        run_repository_all \
-        piratebox \
-        librarybox \
-        stop_repository_all \
-        end_timer
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
 
 
 # Build the piratebox snapshot release
