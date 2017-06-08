@@ -16,6 +16,7 @@ THREADS?=4
 WWW_PORT=2342
 WWW=$(HERE)/local_www
 WWW_PID_FILE=$(HERE)/www.pid
+WWW_URL_PACKAGES=http://127.0.0.1:$(WWW_PORT)/all/packages
 
 # OpenWRT related settings
 OPENWRT_GIT=git://git.openwrt.org/12.09/openwrt.git
@@ -79,14 +80,9 @@ $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
 	cd $(IMAGE_BUILD) && git checkout AA-with-installer
 
-switch_to_local_webserver:
-	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
-	sed -i "s|http://development.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
-	sed -i "s|http://beta.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
-
 # Clone the OpenWRT repository, configure it
 $(OPENWRT_DIR):
-	git clone $(OPENWRT_GIT)
+	git clone $(OPENWRT_GIT) $(OPENWRT_DIR)
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
 
@@ -206,17 +202,17 @@ modify_image_builder_beta:
 	#	sed -i -e 's|librarybox_2.1_img.tar.gz|librarybox_2.1_img.tar.gz|g' $(IMAGE_BUILD)/Makefile
 
 # Build the piratebox firmware images and install.zip
-piratebox: switch_to_local_webserver
-	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox
+piratebox:
+	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox IMAGE_BUILD_REPOSITORY=$(WWW_URL_PACKAGES)
 	@ echo "========================"
 	@ echo "Build process completed."
 	@ echo "========================"
 	@ echo "Your build is now available in $(IMAGE_BUILD)/target_piratebox"
 
 # Build the piratebox firmware images and install.zip
-librarybox: switch_to_local_webserver
+librarybox:
 	sed -i -e 's|piratebox-mesh|pbxmesh|g'  $(IMAGE_BUILD)/Makefile
-	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=librarybox
+	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=librarybox IMAGE_BUILD_REPOSITORY=$(WWW_URL_PACKAGES)
 	@ echo "========================"
 	@ echo "Build process completed."
 	@ echo "========================"
