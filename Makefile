@@ -200,7 +200,7 @@ install_piratebox_feed:
 #    make package/feeds/<feed>/<package>/compile
 #    make package/feeds/<feed>/<package>/install
 build_openwrt: 
-	cp $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE) $(OPENWRT_DIR)/.config
+	cp $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE).stable $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
 build_openwrt_beta: 
