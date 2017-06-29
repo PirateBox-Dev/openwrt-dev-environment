@@ -38,8 +38,20 @@ Will build the beta release with the **development branch** of the [openwrt-pira
 * _make auto_build_development_    
 Will build a snapshot release, using a local feed including the __develompment branches__ of packages otherwise pulled in via the [openwrt-piratebox-feed](https://github.com/PirateBox-Dev/openwrt-piratebox-feed).
 
-* _make auto_build_local_     
+* _make auto_build_local_
 Will build a release using all the packages from the _local_feed_ folder, but without changing brnaches. It will use all the packages at the set branch und build from there. This is the best way to implement and test your own changes, using exactly the branches you want.
+
+### Follow on build instructions
+Moving towards an approach of a multi architecture build, three new make targets are available. These targets are improving the imagebuild time. After a complete __auto_build_development__ run, it is not needed to run through a complete cleaned up environment to continue to create custom images.
+
+* _make auto_build_stable_short_
+Will continue building __without__ updating any branch or rebuilding the the piratebox_ws image files for stable.
+
+* _make auto_build_beta_short_
+Will continue building __without__ updating any branch or rebuilding the the piratebox_ws image files for beta releases.
+
+* _make auto_build_development_short_
+Will continue building __without__ updating any branch or rebuilding the the piratebox_ws image files for development releases.
 
 ## Detailed build instructions
 Find below the steps described each of the automated targets uses.

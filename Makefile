@@ -77,6 +77,11 @@ info:
 	@ echo "* auto_build_stable"
 	@ echo "* auto_build_beta"
 	@ echo "* auto_build_development"
+	@ echo "======================================="
+	@ echo "Available follow on auto build targets:"
+	@ echo "* auto_build_stable_short"
+	@ echo "* auto_build_beta_short"
+	@ echo "* auto_build_development_short"
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
@@ -355,6 +360,38 @@ auto_build_development: \
 	checkout_librarybox_dev \
 	create_piratebox_script_image \
 	create_librarybox_script_image \
+	build_openwrt_development \
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
+
+
+### Short build targets
+#    Build piratebox release without a complete rebuild.
+#    This is used for building additional architectures.
+#    Clean and update steps are omnitted
+auto_build_stable_short: \
+	start_timer \
+	build_openwrt_beta \
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
+
+auto_build_beta_short: \
+	start_timer \
+	build_openwrt_beta \
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
+
+auto_build_development_short: \
+	start_timer \
 	build_openwrt_development \
 	run_repository_all \
 	piratebox \
