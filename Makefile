@@ -21,7 +21,7 @@ WWW_URL_PACKAGES=http://127.0.0.1:$(WWW_PORT)/all/packages
 # OpenWRT related settings
 OPENWRT_GIT=https://git.lede-project.org/source.git
 OPENWRT_DIR=$(HERE)/openwrt
-OPENWRT_TAG=v17.01.1
+OPENWRT_TAG=v17.01.2
 OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 
 # Architecture , Build Target etc.
