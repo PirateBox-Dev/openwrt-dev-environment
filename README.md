@@ -53,6 +53,28 @@ Will continue building __without__ updating any branch or rebuilding the the pir
 * _make auto_build_development_short_
 Will continue building __without__ updating any branch or rebuilding the the piratebox_ws image files for development releases.
 
+## Building architecture based
+__This feature is in development__, and might not work as expected. As this build environment is creating OpenWr
+t/LEDE packages and all needed files around an release. This is the starting point to hook into to create images
+ & install.zip for different router boards then ar71xx/generic.
+
+The adjustments are:
+
+* Find out the values for TARGET, TARGET_TYPE, ARCH
+* Create a openwrt/lede configuration file for the other architecture. Save it in _configs/openwrt.$(TARGET)_$(TARGET_TYPE).(stable|beta|development)
+* Get a copy of the openwrt-image-build repository,
+  * Create a new Makefile named:  __include/$(TARGET)_$(TARGET_TYPE).mk__
+  * This Makefile should look like ar71xx-generic.mk , but include your router types and specific values
+
+Starting the build with the following command should result in a complete build for your boards.
+
+```
+  make auto_build_development TARGET=ar71xx TARGET_TYPE=generic ARCH=mips_24kc
+```
+
+* If everything works, it might be useful to enhance __start_autobuild.sh__ with the new build targets.
+
+
 ## Detailed build instructions
 Find below the steps described each of the automated targets uses.
 The PirateBox feed variant is described in detail, other variants are described in how they differ from the PirateBox feed variant.
