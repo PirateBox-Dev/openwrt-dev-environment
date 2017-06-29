@@ -16,6 +16,7 @@ THREADS?=4
 WWW_PORT=2342
 WWW=$(HERE)/local_www
 WWW_PID_FILE=$(HERE)/www.pid
+WWW_URL_PACKAGES=http://127.0.0.1:$(WWW_PORT)/all/packages
 
 # OpenWRT related settings
 OPENWRT_GIT=https://git.lede-project.org/source.git
@@ -69,6 +70,7 @@ info:
 	@ echo "* acquire_stable_packages"
 	@ echo "* run_repository_all"
 	@ echo "* piratebox"
+	@ echo "* librarybox"
 	@ echo "* stop_repository_all"
 	@ echo "* clean"
 	@ echo "* distclean"
@@ -114,7 +116,7 @@ $(PIRATEBOXSCRIPTS):
 
 # Create LibraryBox script image and copy it to the build directory if available
 create_librarybox_script_image: $(LIBRARYBOXSCRIPTS)
-	cd $(LIBRARYBOXSCRIPTS) && make clean
+	cd $(LIBRARYBOXSCRIPTS) && make cleanall
 	cd $(LIBRARYBOXSCRIPTS) && make shortimage
 	test -d $(IMAGE_BUILD) && cp $(LIBRARYBOXSCRIPTS)/librarybox_*_img.tar.gz $(IMAGE_BUILD)
 
@@ -297,11 +299,11 @@ auto_build_stable: \
 	update_all_feeds \
 	install_piratebox_feed \
 	create_piratebox_script_image \
-        create_librarybox_script_image \
+	create_librarybox_script_image \
 	build_openwrt \
 	run_repository_all \
 	piratebox \
-        librarybox \
+	librarybox \
 	stop_repository_all \
 	end_timer
 
@@ -328,22 +330,22 @@ auto_build_stable: \
 
 # Build beta releases
 auto_build_beta: \
-        start_timer \
-        clean \
-        openwrt_env \
-        apply_piratebox_beta_feed \
-        update_all_feeds \
-        install_piratebox_feed \
+	start_timer \
+	clean \
+	openwrt_env \
+	apply_piratebox_beta_feed \
+	update_all_feeds \
+	install_piratebox_feed \
 	switch_local_feed_to_beta \
-        create_piratebox_script_image \
-        create_librarybox_script_image \
-        build_openwrt_beta \
+	create_piratebox_script_image \
+	create_librarybox_script_image \
+	build_openwrt_beta \
 	modify_image_builder_beta \
-        run_repository_all \
-        piratebox \
-        librarybox \
-        stop_repository_all \
-        end_timer
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
 
 
 # Build the piratebox snapshot release
