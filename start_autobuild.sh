@@ -23,12 +23,24 @@ deploy_folder=/tmp/deploy
 log_folder=${deploy_folder}/log
 build_log=${log_folder}/build.log
 collect_log=${log_folder}/collect.log
-package_destination=${deploy_folder}/all
+package_destination=${deploy_folder}
+package_destination_all=${deploy_folder}/all
 
 ## Adjust this path where your openwrt-dev-enfironment stuff is located
 build_env=/home/admin/auto_build/openwrt-dev-environment
 
 screen_cmd="screen -L -Dm -c ~/auto_screenrc"
+
+
+target_list="ar71xx_generic"
+set_target(){
+   if [ "$1"  = "ar71xx_generic" ] ; then
+	TARGET="ar71xx"
+	TARGET_TYPE="generic"
+	ARCH="mips_24kc"
+   fi
+}
+
 
 if [ -z $1 ] ; then
 	sleep $auto_start_wait
@@ -58,17 +70,40 @@ cd $build_env
 $screen_cmd  make refresh_local_feeds
 echo "##### Make auto_build_development"
 cd $build_env
-$screen_cmd make auto_build_development THREADS=$THREADS
+
+first="yes"
+
+for target in $target_list ; do
+	set_target "${target}"
+	if [ "$first" = "no" ] ; then
+		build_target="auto_build_development_short"
+	else
+		build_target="auto_build_development"
+		first="no"
+	fi
+	$screen_cmd make "$build_target" THREADS=$THREADS TARGET="$TARGET" TARGET_TYPE="$TARGET_TYPE" ARCH="$ARCH"
+done
+
 RC=$?
-cd $build_env/PirateBoxScripts_Webserver/  
+cd $build_env/PirateBoxScripts_Webserver/
 make package
 
 ## Collect
 if [ $RC -eq 0 ] ; then
-	mkdir $package_destination 2>&1 >> $collect_log
-	cp -rv  $build_env/openwrt/bin/ar71xx/packages $package_destination 2>&1 >> $collect_log
+	mkdir "$package_destination" 2>&1 >> "$collect_log"
+
+	#last ARCH is sufficient
+	cp -rv  "$build_env/openwrt/bin/packages/$ARCH/piratebox" "$package_destination_all/" 2>&1 >> "$collect_log"
+
+	for target in $target_list ; do
+		set_target "${target}"
+		# one arch can be used for multiple targets
+		if test ! -d  "$package_destination/$ARCH" ; then
+			mkdir -p "$package_destination/$ARCH"  2>&1 >> "$collect_log"
+			cp -rv  "$build_env/openwrt/bin/packages/$ARCH/old_packages" "$package_destination/$ARCH/"  2>&1 >> "$collect_log"
+		fi
+	done
 	cp -rv  $build_env/openwrt-image-build/target_* $deploy_folder 2>&1 >> $collect_log
-#	cp  $build_env/PirateBoxScripts_Webserver/piratebox_ws_*_img.tar.gz $deploy_folder  2>&1 >> $collect_log
 	cp  $build_env/PirateBoxScripts_Webserver/piratebox*.tar.gz $deploy_folder  2>&1 >> $collect_log
 
 	find "$deploy_folder" -type d -exec sh -c "echo 'IndexOptions NameWidth=*' > {}/.htaccess" \;
