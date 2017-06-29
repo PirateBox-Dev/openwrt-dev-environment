@@ -10,3 +10,5 @@ piratebox_beta_feed/
 *img
 *tar.gz
 ftp_config.sh
+lede_public.key
+lede_secret.key

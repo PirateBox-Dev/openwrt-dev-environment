@@ -16,11 +16,20 @@ THREADS?=4
 WWW_PORT=2342
 WWW=$(HERE)/local_www
 WWW_PID_FILE=$(HERE)/www.pid
+WWW_URL_PACKAGES=http://127.0.0.1:$(WWW_PORT)/all/packages
 
 # OpenWRT related settings
-OPENWRT_GIT=git://git.openwrt.org/12.09/openwrt.git
+OPENWRT_GIT=https://git.lede-project.org/source.git
 OPENWRT_DIR=$(HERE)/openwrt
+OPENWRT_TAG=v17.01.1
 OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
+
+# Architecture , Build Target etc.
+#  This will also be propagated to openwrt-image-build
+TARGET?=ar71xx
+TARGET_TYPE?=generic
+ARCH?=mips_24kc
+
 
 
 PIRATEBOX_FEED_GIT=https://github.com/PirateBox-Dev/openwrt-piratebox-feed.git
@@ -70,6 +79,11 @@ info:
 	@ echo "* auto_build_stable"
 	@ echo "* auto_build_beta"
 	@ echo "* auto_build_development"
+	@ echo "======================================="
+	@ echo "Available follow on auto build targets:"
+	@ echo "* auto_build_stable_short"
+	@ echo "* auto_build_beta_short"
+	@ echo "* auto_build_development_short"
 
 openwrt_env: $(OPENWRT_DIR) $(IMAGE_BUILD)
 
@@ -79,16 +93,16 @@ $(IMAGE_BUILD):
 	git clone $(IMAGE_BUILD_GIT)
 	cd $(IMAGE_BUILD) && git checkout AA-with-installer
 
-switch_to_local_webserver:
-	sed -i "s|http://stable.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
-	sed -i "s|http://development.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
-	sed -i "s|http://beta.openwrt.piratebox.de|http://127.0.0.1:$(WWW_PORT)|" $(IMAGE_BUILD)/Makefile
-
 # Clone the OpenWRT repository, configure it
-$(OPENWRT_DIR):
-	git clone $(OPENWRT_GIT)
+$(OPENWRT_DIR): lede_public.key lede_secret.key
+	git clone  $(OPENWRT_GIT) $(OPENWRT_DIR)
+ifneq ($(OPENWRT_TAG),"")
+	cd $(OPENWRT_DIR) &&  git checkout $(OPENWRT_TAG)
+endif
 	cd $(OPENWRT_DIR) && make defconfig
 	cd $(OPENWRT_DIR) && make prereq
+	cp lede_public.key $(OPENWRT_DIR)/key-build.pub
+	cp lede_secret.key $(OPENWRT_DIR)/key-build
 
 # Create piratebox script image and copy it to the build directory if available
 create_piratebox_script_image: $(PIRATEBOXSCRIPTS)
@@ -127,9 +141,7 @@ apply_piratebox_dev_feed: $(OPENWRT_FEED_FILE)
 # Copy the OpenWRT feed file
 $(OPENWRT_FEED_FILE):
 	cp $(OPENWRT_FEED_FILE).default $(OPENWRT_FEED_FILE)
-	# Fix, SVN was deactivated in 2016
-	sed -i 's|^src-svn packages|#src-svn packages|' $(OPENWRT_FEED_FILE)
-	echo "src-git packages  git://git.openwrt.org/12.09/packages.git" >> $(OPENWRT_FEED_FILE)
+	sed -e 's|^src-git oldpackages|src-git oldpackages|' $(OPENWRT_FEED_FILE)
 
 
 # Apply PirateBox beta feed
@@ -144,7 +156,7 @@ switch_local_feed_to_dev: $(PIRATEBOXSCRIPTS) $(LIBRARYBOXSCRIPTS)
 	$(call git_checkout_development, $(IMAGE_BUILD))
 
 define git_checkout_development
-	cd $(1) && git checkout development
+	cd $(1) && git checkout -b development origin/development || git checkout development
 endef
 
 switch_local_feed_to_beta: $(PIRATEBOXSCRIPTS) $(LIBRARYBOXSCRIPTS)
@@ -190,15 +202,15 @@ install_piratebox_feed:
 #    make package/feeds/<feed>/<package>/compile
 #    make package/feeds/<feed>/<package>/install
 build_openwrt: 
-	cp $(HERE)/configs/openwrt $(OPENWRT_DIR)/.config
+	cp $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE).stable $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
 build_openwrt_beta: 
-	cp $(HERE)/configs/openwrt.beta $(OPENWRT_DIR)/.config
+	cp $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE).beta $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
 build_openwrt_development: 
-	cp $(HERE)/configs/openwrt.snapshot $(OPENWRT_DIR)/.config
+	cp $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE).snapshot $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
 # Adjust configuration on image builder if beta needs changes
@@ -206,17 +218,25 @@ modify_image_builder_beta:
 	#	sed -i -e 's|librarybox_2.1_img.tar.gz|librarybox_2.1_img.tar.gz|g' $(IMAGE_BUILD)/Makefile
 
 # Build the piratebox firmware images and install.zip
-piratebox: switch_to_local_webserver
-	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=piratebox
+piratebox:
+	cd $(IMAGE_BUILD) &&  make all \
+		IMAGE_BUILD_REPOSITORY=http://127.0.0.1:$(WWW_PORT)/all/piratebox \
+		INSTALL_TARGET=piratebox \
+		TARGET=$(TARGET) \
+		TARGET_TYPE=$(TARGET_TYPE)
 	@ echo "========================"
 	@ echo "Build process completed."
 	@ echo "========================"
 	@ echo "Your build is now available in $(IMAGE_BUILD)/target_piratebox"
 
 # Build the piratebox firmware images and install.zip
-librarybox: switch_to_local_webserver
+librarybox:
 	sed -i -e 's|piratebox-mesh|pbxmesh|g'  $(IMAGE_BUILD)/Makefile
-	cd $(IMAGE_BUILD) &&  make all INSTALL_TARGET=librarybox
+	cd $(IMAGE_BUILD) &&  make all \
+		IMAGE_BUILD_REPOSITORY=http://127.0.0.1:$(WWW_PORT)/all/piratebox \
+		INSTALL_TARGET=librarybox \
+		TARGET=$(TARGET) \
+		TARGET_TYPE=$(TARGET_TYPE)
 	@ echo "========================"
 	@ echo "Build process completed."
 	@ echo "========================"
@@ -234,10 +254,10 @@ librarybox: switch_to_local_webserver
 # into the build process and get our package-dependencies from there.
 # --- see more informations in openwrt-image-build folder.
 run_repository_all:
-	mkdir -p $(WWW)
-	- ln -s $(OPENWRT_DIR)/bin/ar71xx $(WWW)/all
-	rm $(OPENWRT_DIR)/bin/ar71xx/packages/*ar71xx* -f
-	cd $(OPENWRT_DIR) && make package/index
+	mkdir -p $(WWW)/all/
+	mkdir -p $(WWW)/$(ARCH)/
+	- ln -s $(OPENWRT_DIR)/bin/packages/$(ARCH)/piratebox   $(WWW)/all/
+	- ln -s $(OPENWRT_DIR)/bin/packages/$(ARCH)/oldpackages $(WWW)/$(ARCH)/
 	cd $(WWW) && touch $(WWW_PID_FILE) && python3 -m http.server $(WWW_PORT) & echo "$$!" > $(WWW_PID_FILE)
 
 # Stop the repository if a pid file is present
@@ -265,6 +285,10 @@ end_timer:
 		$$(expr \( $$(date +%s) - $$(cat time.log) \) / 60) min \
 		$$(expr \( $$(date +%s) - $$(cat time.log) \) % 60) sec
 	@ rm -rf time.log
+
+
+%.key:
+	$(error Package signing keys missing $@ )
 
 # Build the piratebox stable release
 auto_build_stable: \
@@ -338,6 +362,38 @@ auto_build_development: \
 	checkout_librarybox_dev \
 	create_piratebox_script_image \
 	create_librarybox_script_image \
+	build_openwrt_development \
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
+
+
+### Short build targets
+#    Build piratebox release without a complete rebuild.
+#    This is used for building additional architectures.
+#    Clean and update steps are omnitted
+auto_build_stable_short: \
+	start_timer \
+	build_openwrt_beta \
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
+
+auto_build_beta_short: \
+	start_timer \
+	build_openwrt_beta \
+	run_repository_all \
+	piratebox \
+	librarybox \
+	stop_repository_all \
+	end_timer
+
+auto_build_development_short: \
+	start_timer \
 	build_openwrt_development \
 	run_repository_all \
 	piratebox \
