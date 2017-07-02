@@ -111,7 +111,7 @@ if [ $RC -eq 0 ] ; then
 	cp -rv  $build_env/openwrt-image-build/target_* $deploy_folder 2>&1 >> $collect_log
 	cp  $build_env/PirateBoxScripts_Webserver/piratebox*.tar.gz $deploy_folder  2>&1 >> $collect_log
 
-    find /tmp/deploy/ -name install -exec rm -r {} \;
+    find "$deploy_folder" -name install -exec rm -r {} \;
 	find "$deploy_folder" -type d -exec sh -c "echo 'IndexOptions NameWidth=*' > {}/.htaccess" \;
 
 fi
