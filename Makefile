@@ -28,7 +28,7 @@ OPENWRT_FEED_FILE=$(OPENWRT_DIR)/feeds.conf
 #  This will also be propagated to openwrt-image-build
 TARGET?=ar71xx
 TARGET_TYPE?=generic
-ARCH?=mips_24kc
+PARCH?=mips_24kc
 
 
 
@@ -255,9 +255,9 @@ librarybox:
 # --- see more informations in openwrt-image-build folder.
 run_repository_all:
 	mkdir -p $(WWW)/all/
-	mkdir -p $(WWW)/$(ARCH)/
-	- ln -s $(OPENWRT_DIR)/bin/packages/$(ARCH)/piratebox   $(WWW)/all/
-	- ln -s $(OPENWRT_DIR)/bin/packages/$(ARCH)/oldpackages $(WWW)/$(ARCH)/
+	mkdir -p $(WWW)/$(PARCH)/
+	- ln -s $(OPENWRT_DIR)/bin/packages/$(PARCH)/piratebox   $(WWW)/all/
+	- ln -s $(OPENWRT_DIR)/bin/packages/$(PARCH)/oldpackages $(WWW)/$(PARCH)/
 	cd $(WWW) && touch $(WWW_PID_FILE) && python3 -m http.server $(WWW_PORT) & echo "$$!" > $(WWW_PID_FILE)
 
 # Stop the repository if a pid file is present
