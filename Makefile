@@ -256,8 +256,8 @@ librarybox:
 run_repository_all:
 	mkdir -p $(WWW)/all/
 	mkdir -p $(WWW)/$(PARCH)/
-	- ln -s $(OPENWRT_DIR)/bin/packages/$(ARCH)/piratebox   $(WWW)/all/
-	- ln -s $(OPENWRT_DIR)/bin/packages/$(ARCH)/oldpackages $(WWW)/$(PARCH)/
+	- ln -s $(OPENWRT_DIR)/bin/packages/$(PARCH)/piratebox   $(WWW)/all/
+	- ln -s $(OPENWRT_DIR)/bin/packages/$(PARCH)/oldpackages $(WWW)/$(PARCH)/
 	cd $(WWW) && touch $(WWW_PID_FILE) && python3 -m http.server $(WWW_PORT) & echo "$$!" > $(WWW_PID_FILE)
 
 # Stop the repository if a pid file is present

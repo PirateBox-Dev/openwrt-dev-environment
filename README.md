@@ -69,11 +69,11 @@ The adjustments are:
 Starting the build with the following command should result in a complete build for your boards.
 
 ```
-  make auto_build_development TARGET=ar71xx TARGET_TYPE=generic ARCH=mips_24kc
+  make auto_build_development TARGET=ar71xx TARGET_TYPE=generic PARCH=mips_24kc
 ```
 
 * If everything works, it might be useful to enhance __start_autobuild.sh__ with the new build targets.
-
+* ARCH is not used as variable, because openwrt build change is confused by that, so we are using PARCH
 
 ## Detailed build instructions
 Find below the steps described each of the automated targets uses.

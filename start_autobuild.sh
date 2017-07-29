@@ -37,12 +37,12 @@ set_target(){
    if [ "$1"  = "ar71xx_generic" ] ; then
 	TARGET="ar71xx"
 	TARGET_TYPE="generic"
-	ARCH="mips_24kc"
+	PARCH="mips_24kc"
    fi
    if [ "$1"  = "ramips_mt7620" ] ; then
 	TARGET="ramips"
 	TARGET_TYPE="mt7620"
-	ARCH="mipsel_24kc"
+	PARCH="mipsel_24kc"
    fi
 }
 
@@ -86,7 +86,7 @@ for target in $target_list ; do
 		build_target="auto_build_development"
 		first="no"
 	fi
-	$screen_cmd make "$build_target" THREADS=$THREADS TARGET="$TARGET" TARGET_TYPE="$TARGET_TYPE" ARCH="$ARCH"
+	$screen_cmd make "$build_target" THREADS=$THREADS TARGET="$TARGET" TARGET_TYPE="$TARGET_TYPE" PARCH="$PARCH"
 done
 
 RC=$?
@@ -98,14 +98,14 @@ if [ $RC -eq 0 ] ; then
 	mkdir "$package_destination" 2>&1 >> "$collect_log"
 
 	#last ARCH is sufficient
-	cp -rv  "$build_env/openwrt/bin/packages/$ARCH/piratebox" "$package_destination_all/" 2>&1 >> "$collect_log"
+	cp -rv  "$build_env/openwrt/bin/packages/$PARCH/piratebox" "$package_destination_all/" 2>&1 >> "$collect_log"
 
 	for target in $target_list ; do
 		set_target "${target}"
 		# one arch can be used for multiple targets
-		if test ! -d  "$package_destination/$ARCH" ; then
-			mkdir -p "$package_destination/$ARCH"  2>&1 >> "$collect_log"
-			cp -rv  "$build_env/openwrt/bin/packages/$ARCH/old_packages" "$package_destination/$ARCH/"  2>&1 >> "$collect_log"
+		if test ! -d  "$package_destination/$PARCH" ; then
+			mkdir -p "$package_destination/$PARCH"  2>&1 >> "$collect_log"
+			cp -rv  "$build_env/openwrt/bin/packages/$PARCH/old_packages" "$package_destination/$PARCH/"  2>&1 >> "$collect_log"
 		fi
 	done
 	cp -rv  $build_env/openwrt-image-build/target_* $deploy_folder 2>&1 >> $collect_log
@@ -134,6 +134,6 @@ mirror --reverse \
        --exclude-glob other-files-to-exclude"
 
 
-if [ -z $1 ] ; then
-	sudo shutdown -h now 
+if [ "$shutdown" = "yes"  ] ; then
+	sudo shutdown -h now
 fi
