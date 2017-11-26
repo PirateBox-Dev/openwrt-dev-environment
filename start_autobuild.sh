@@ -28,6 +28,8 @@ auto_start_wait=120
 #  For LibraryBox this is not sufficient, because proftpd is currently needed.
 build_each_arch="no"
 
+# Shutdown after build is completed
+shutdown="no"
 
 deploy_folder=/tmp/deploy
 log_folder=${deploy_folder}/log
