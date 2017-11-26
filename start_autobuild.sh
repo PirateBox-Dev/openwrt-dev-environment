@@ -16,8 +16,10 @@ THREADS=$(grep processor  /proc/cpuinfo | wc -l)
 ## File that stops the automatic script, that you are able to do
 ##  work on the server, when the script autostarts.
 exit_file=/tmp/no_build.semaphore
-# Wait time before starting
-auto_start_wait=120
+# Wait time before starting , this is needed for running in rc.local
+auto_start_wait=1
+# Shutdown after build is completed
+shutdown="no"
 
 # Build each arch on OpenWrt / LEDE
 # --------------------------------- 
@@ -27,9 +29,6 @@ auto_start_wait=120
 #  build.
 #  For LibraryBox this is not sufficient, because proftpd is currently needed.
 build_each_arch="no"
-
-# Shutdown after build is completed
-shutdown="no"
 
 deploy_folder=/tmp/deploy
 log_folder=${deploy_folder}/log
