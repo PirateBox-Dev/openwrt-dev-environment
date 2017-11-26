@@ -68,7 +68,8 @@ if [ -e $exit_file ] ; then
 fi
 
 #Empty deploy folder
-[ -d deploy_folder ] && rm -rv  $deploy_folder
+[ -d $log_folder ] && rm  -rv  $log_folder
+[ -d $deploy_folder ] && rm -rv  $deploy_folder
 mkdir $deploy_folder
 mkdir $log_folder
 
