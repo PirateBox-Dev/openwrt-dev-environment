@@ -209,8 +209,9 @@ build_openwrt_beta:
 	cp $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE).beta $(OPENWRT_DIR)/.config
 	cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)
 
-build_openwrt_development: 
-	cp $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE).snapshot $(OPENWRT_DIR)/.config
+build_openwrt_development:
+	cat $(HERE)/configs/openwrt.$(TARGET)_$(TARGET_TYPE).snapshot.diff $(HERE)/configs/openwrt.our_packages.snapshot.diff > $(OPENWRT_DIR)/.config
+	bash -l  -c "cd $(OPENWRT_DIR) && export LC_ALL=C && make defconfig "
 	bash -l  -c "cd $(OPENWRT_DIR) && export LC_ALL=C && make -j $(THREADS)"
 
 # Adjust configuration on image builder if beta needs changes
