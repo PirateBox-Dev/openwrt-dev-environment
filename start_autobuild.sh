@@ -22,7 +22,7 @@ auto_start_wait=1
 shutdown="no"
 
 # Build each arch on OpenWrt / LEDE
-# --------------------------------- 
+# ---------------------------------
 #  Currently the configuration file handling for the LEDE/openwrt build chain is not
 #  optimal. For some reason, it happens that packages are missing between the archs.
 #  As we do not have binary packages in the current build, we can just use one
@@ -76,11 +76,11 @@ mkdir $log_folder
 
 
 ### Build
-cd $build_env 
-echo "##### Make clean" 
-make clean 
+cd $build_env
+echo "##### Make clean"
+make clean
 rm -v openwrt-image-build/piratebox_ws_*_img.tar.gz
-cd PirateBoxScripts_Webserver/  
+cd PirateBoxScripts_Webserver/
 make clean
 echo "##### Make refresh_local_feeds ; Refresh repositories"
 cd $build_env
