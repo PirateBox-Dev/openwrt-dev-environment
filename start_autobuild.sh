@@ -19,6 +19,16 @@ exit_file=/tmp/no_build.semaphore
 # Wait time before starting
 auto_start_wait=120
 
+# Build each arch on OpenWrt / LEDE
+# --------------------------------- 
+#  Currently the configuration file handling for the LEDE/openwrt build chain is not
+#  optimal. For some reason, it happens that packages are missing between the archs.
+#  As we do not have binary packages in the current build, we can just use one
+#  build.
+#  For LibraryBox this is not sufficient, because proftpd is currently needed.
+build_each_arch="no"
+
+
 deploy_folder=/tmp/deploy
 log_folder=${deploy_folder}/log
 build_log=${log_folder}/build.log
@@ -76,18 +86,24 @@ $screen_cmd  make refresh_local_feeds
 echo "##### Make auto_build_development"
 cd $build_env
 
-first="yes"
+if [ "$build_each_arch" = "yes" ] ; then
+    first="yes"
+    for target in $target_list ; do
+        set_target "${target}"
+        if [ "$first" = "no" ] ; then
+            build_target="auto_build_development_short"
+        else
+            build_target="auto_build_development"
+            first="no"
+        fi
+        $screen_cmd make "$build_target" THREADS=$THREADS TARGET="$TARGET" TARGET_TYPE="$TARGET_TYPE" PARCH="$PARCH"
+    done
+else
+    set_target "ar71xx_generic"
+    build_target="auto_build_development"
+    $screen_cmd make "$build_target" THREADS=$THREADS TARGET="$TARGET" TARGET_TYPE="$TARGET_TYPE" PARCH="$PARCH"
+fi
 
-for target in $target_list ; do
-	set_target "${target}"
-	if [ "$first" = "no" ] ; then
-		build_target="auto_build_development_short"
-	else
-		build_target="auto_build_development"
-		first="no"
-	fi
-	$screen_cmd make "$build_target" THREADS=$THREADS TARGET="$TARGET" TARGET_TYPE="$TARGET_TYPE" PARCH="$PARCH"
-done
 
 RC=$?
 cd $build_env/PirateBoxScripts_Webserver/
