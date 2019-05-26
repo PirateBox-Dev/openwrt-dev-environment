@@ -255,6 +255,8 @@ librarybox:
 # into the build process and get our package-dependencies from there.
 # --- see more informations in openwrt-image-build folder.
 run_repository_all:
+	- test -e $(WWW)/all/ && rm  $(WWW)/all
+	- test -e $(WWW)/(PARCH)s && rm  $(WWW)/$(PARCH)
 	mkdir -p $(WWW)/all/
 	mkdir -p $(WWW)/$(PARCH)/
 	- ln -s $(OPENWRT_DIR)/bin/packages/$(PARCH)/piratebox   $(WWW)/all/
