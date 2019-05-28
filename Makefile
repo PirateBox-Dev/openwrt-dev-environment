@@ -244,6 +244,19 @@ librarybox:
 	@ echo "Your build is now available in $(IMAGE_BUILD)/target_librarybox"
 
 
+# Create images with a minimum set of packages, used for preinstall
+#   the box installer.
+auto_flash_images:
+	cd $(IMAGE_BUILD) &&  make all \
+		IMAGE_BUILD_REPOSITORY=http://127.0.0.1:$(WWW_PORT)/all/piratebox \
+		INSTALL_TARGET=plain \
+		TARGET=$(TARGET) \
+		TARGET_TYPE=$(TARGET_TYPE)
+	@ echo "========================"
+	@ echo "Build process completed."
+	@ echo "========================"
+	@ echo "Your build is now available in $(IMAGE_BUILD)/target_plain"
+
 # Create local repository and start http server to serve files
 #
 # Runs a repository, that will only contain files having "all" as naming
@@ -369,6 +382,7 @@ auto_build_development: \
 	run_repository_all \
 	piratebox \
 	librarybox \
+	auto_flash_images \
 	stop_repository_all \
 	end_timer
 
@@ -401,6 +415,7 @@ auto_build_development_short: \
 	run_repository_all \
 	piratebox \
 	librarybox \
+	auto_flash_images \
 	stop_repository_all \
 	end_timer
 
