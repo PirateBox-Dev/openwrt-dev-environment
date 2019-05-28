@@ -43,7 +43,7 @@ build_env=/home/admin/auto_build/openwrt-dev-environment
 screen_cmd="screen -L -Dm -c ~/auto_screenrc"
 
 
-target_list="ar71xx_generic ramips_mt7620"
+target_list="ar71xx_generic ramips_mt7620 ramips_mt76x8"
 set_target(){
    if [ "$1"  = "ar71xx_generic" ] ; then
 	TARGET="ar71xx"
@@ -53,6 +53,11 @@ set_target(){
    if [ "$1"  = "ramips_mt7620" ] ; then
 	TARGET="ramips"
 	TARGET_TYPE="mt7620"
+	PARCH="mipsel_24kc"
+   fi
+   if [ "$1"  = "ramips_mt76x8" ] ; then
+	TARGET="ramips"
+	TARGET_TYPE="mt76x8"
 	PARCH="mipsel_24kc"
    fi
 }
