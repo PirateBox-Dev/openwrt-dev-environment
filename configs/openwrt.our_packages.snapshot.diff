@@ -28,6 +28,7 @@ CONFIG_PACKAGE_extendRoot-openssh-sftp-server=m
 CONFIG_PACKAGE_extendRoot-php=m
 CONFIG_PACKAGE_extendRoot-php-fastcgi=m
 CONFIG_PACKAGE_extendRoot-piratebox=m
+CONFIG_PACKAGE_extendRoot-thewrong=m
 CONFIG_PACKAGE_extendRoot-proftpd=m
 CONFIG_PACKAGE_extendRoot-python=m
 CONFIG_PACKAGE_extendRoot-zoneinfo=m
@@ -189,3 +190,6 @@ CONFIG_PERL_THREADS=y
 CONFIG_PHP7_LIBXML=y
 CONFIG_PHP7_SYSTEMTZDATA=y
 # CONFIG_PACKAGE_lighttpd-mod-trigger_b4_dl is not set
+CONFIG_PACKAGE_thewrong=m
+CONFIG_PACKAGE_thewrong-mod-imageboard=m
+
