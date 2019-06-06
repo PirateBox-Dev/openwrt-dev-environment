@@ -244,6 +244,18 @@ librarybox:
 	@ echo "Your build is now available in $(IMAGE_BUILD)/target_librarybox"
 
 
+# Build the thewrong firmware images and install.zip
+piratebox:
+	cd $(IMAGE_BUILD) &&  make all \
+		IMAGE_BUILD_REPOSITORY=http://127.0.0.1:$(WWW_PORT)/all/piratebox \
+		INSTALL_TARGET=thewrong \
+		TARGET=$(TARGET) \
+		TARGET_TYPE=$(TARGET_TYPE)
+	@ echo "========================"
+	@ echo "Build process completed."
+	@ echo "========================"
+	@ echo "Your build is now available in $(IMAGE_BUILD)/target_thewrong"
+
 # Create local repository and start http server to serve files
 #
 # Runs a repository, that will only contain files having "all" as naming
@@ -369,6 +381,7 @@ auto_build_development: \
 	run_repository_all \
 	piratebox \
 	librarybox \
+	thewrong \
 	stop_repository_all \
 	end_timer
 
@@ -401,6 +414,7 @@ auto_build_development_short: \
 	run_repository_all \
 	piratebox \
 	librarybox \
+	thewrong \
 	stop_repository_all \
 	end_timer
 
